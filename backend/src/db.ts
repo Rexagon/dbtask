@@ -5,7 +5,7 @@ export interface InsertionDBResponse {
 }
 
 class Database {
-  pool?: Pool;
+  private pool?: Pool;
 
   public init(config: {
     host: string;
