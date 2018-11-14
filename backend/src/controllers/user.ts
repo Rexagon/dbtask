@@ -3,7 +3,13 @@ import bcrypt from "bcrypt";
 
 import db from "../db";
 import { IUser } from "../models/user";
-import { inRange, genErrResponse } from "../stuff";
+import { IGroup } from "../models/group";
+import {
+  inRange,
+  genErrResponse,
+  createAccessToken,
+  validateAccessToken
+} from "../stuff";
 
 const router = express.Router();
 
@@ -73,11 +79,30 @@ router.post("/signin", async (req, res) => {
   }
 
   try {
-    //TODO: check user and generate accessToken
+    const [hash, [user]] = await Promise.all([
+      bcrypt.hash(data.password, SALT_OR_ROUNDS),
+      db.query<IUser[]>("SELECT * FROM users WHERE login=?", [data.login])
+    ]);
 
-    res.json({
-      accessToken: "none"
-    });
+    if (user == null || (await bcrypt.compare(hash, user.password))) {
+      res.json(genErrResponse("InvalidData"));
+      return;
+    }
+
+    const userGroups = await db.query<IGroup[]>(
+      "SELECT g.* FROM `groups` g LEFT JOIN groups_to_users gtu ON gtu.groupId=g.id AND gtu.userId=?",
+      [user.id]
+    );
+
+    const response = {
+      user: {
+        ...user,
+        password: undefined
+      },
+      accessToken: createAccessToken(userGroups)
+    };
+
+    res.json(response);
   } catch (err) {
     res.json(genErrResponse("DBError", err));
   }
