@@ -1,8 +1,6 @@
 <!-- TEMPLATE BEGIN -->
 <template>
-  <div class="home-page">
-    Home
-  </div>
+  <div class="login-page"></div>
 </template>
 <!-- TEMPLATE END -->
 
@@ -12,6 +10,10 @@
 import { Component, Vue } from 'vue-property-decorator';
 
 @Component
-export default class HomePage extends Vue {}
+export default class LoginPage extends Vue {}
 </script>
 <!-- SCRIPT END -->
+
+
+<!-- STYLE BEGIN -->
+<!-- STYLE END -->
