@@ -1,6 +1,4 @@
-export type ErrorType = "InvalidData" | "DBError" | "ServerError";
-
-export function genErrResponse(text: ErrorType, err?: any): any {
+export function genErrResponse(text: string, err?: any): any {
   if (err) {
     console.error(err);
   }

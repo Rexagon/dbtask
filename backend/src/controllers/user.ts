@@ -1,43 +1,19 @@
 import express from "express";
 import bcrypt from "bcrypt";
 
-import db from "../db";
-import { IUser } from "../models/user";
-import { IGroup } from "../models/group";
-import {
-  inRange,
-  genErrResponse,
-  createAccessToken,
-  validateAccessToken
-} from "../stuff";
+import { IUser, User } from "../models/user";
+import { genErrResponse, createAccessToken } from "../stuff";
 
 const router = express.Router();
 
 const SALT_OR_ROUNDS = 10;
-
-const checkLoginInvalid = (login: string) =>
-  login == null || !inRange(login, 4, 255);
-
-const checkPasswordInvalid = (password: string) =>
-  password == null || !inRange(password, 8, 32);
-
-const userValidator = (user: IUser) => {
-  return {
-    isIdInvalid: user.id == null,
-    isLoginInvalid: checkLoginInvalid(user.login),
-    isPasswordInvalid: checkPasswordInvalid(user.password),
-    isFirstNameInvalid:
-      user.firstName == null || !inRange(user.firstName, 1, 255),
-    isLastNameInvalid: user.lastName == null || !inRange(user.lastName, 1, 255)
-  };
-};
 
 // POST /api/signup //
 /////////////////////
 
 router.post("/signup", async (req, res) => {
   const user = req.body as IUser;
-  const validated = userValidator(user);
+  const validated = User.validate(user);
 
   if (
     validated.isLoginInvalid ||
@@ -53,12 +29,7 @@ router.post("/signup", async (req, res) => {
   user.password = await bcrypt.hash(user.password, SALT_OR_ROUNDS);
 
   try {
-    const dbres = await db.query("INSERT INTO users SET ?", [user]);
-    res.json({
-      ...user,
-      password: undefined,
-      id: dbres.insertId
-    });
+    res.json(await User.create(user));
   } catch (err) {
     res.json(genErrResponse("DBError", err));
   }
@@ -73,15 +44,18 @@ router.post("/signin", async (req, res) => {
     password: string;
   } = req.body;
 
-  if (checkLoginInvalid(data.login) || checkPasswordInvalid(data.password)) {
+  if (
+    User.checkLoginInvalid(data.login) ||
+    User.checkPasswordInvalid(data.password)
+  ) {
     res.json(genErrResponse("InvalidData"));
     return;
   }
 
   try {
-    const [hash, [user]] = await Promise.all([
+    const [hash, user] = await Promise.all([
       bcrypt.hash(data.password, SALT_OR_ROUNDS),
-      db.query<IUser[]>("SELECT * FROM users WHERE login=?", [data.login])
+      User.getByLogin(data.login)
     ]);
 
     if (user == null || (await bcrypt.compare(hash, user.password))) {
@@ -89,17 +63,12 @@ router.post("/signin", async (req, res) => {
       return;
     }
 
-    const userGroups = await db.query<IGroup[]>(
-      "SELECT g.* FROM `groups` g LEFT JOIN groups_to_users gtu ON gtu.groupId=g.id AND gtu.userId=?",
-      [user.id]
-    );
-
     const response = {
       user: {
         ...user,
         password: undefined
       },
-      accessToken: createAccessToken(userGroups)
+      accessToken: createAccessToken(user)
     };
 
     res.json(response);
@@ -113,14 +82,7 @@ router.post("/signin", async (req, res) => {
 
 router.get("/users", async (req, res) => {
   try {
-    const users = await db.query<IUser[]>("SELECT * FROM users");
-
-    res.json(
-      users.map(user => ({
-        ...user,
-        password: undefined
-      }))
-    );
+    res.json(await User.getAll());
   } catch (err) {
     res.json(genErrResponse("DBError", err));
   }
@@ -131,7 +93,7 @@ router.get("/users", async (req, res) => {
 
 router.put("/users", async (req, res) => {
   const user = req.body as IUser;
-  const validated = userValidator(user);
+  const validated = User.validate(user);
 
   if (
     validated.isIdInvalid ||
@@ -143,10 +105,8 @@ router.put("/users", async (req, res) => {
   }
 
   try {
-    const { id, login, password, ...data } = user;
-    await db.query("UPDATE users SET ? WHERE id=?", [data, id]);
-
-    res.json(user);
+    await User.update(user);
+    res.json({});
   } catch (err) {
     res.json(genErrResponse("DBError", err));
   }

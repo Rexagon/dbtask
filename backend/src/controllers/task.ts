@@ -1,8 +1,8 @@
 import express from "express";
 
-import db from "../db";
-import { ITask } from "../models/task";
+import { ITask, Task } from "../models/task";
 import { inRange, genErrResponse } from "../stuff";
+import { IUser } from "src/models/user";
 
 const router = express.Router();
 
@@ -20,9 +20,25 @@ const taskValidator = (task: ITask) => {
 
 router.get("/tasks", async (req, res) => {
   try {
-    const tasks = await db.query<ITask[]>("SELECT * FROM tasks");
+    res.json(await Task.getAll());
+  } catch (err) {
+    res.json(genErrResponse("DBError", err));
+  }
+});
 
-    res.json(tasks);
+// GET /api/tasks/:id //
+///////////////////////
+
+router.get("/tasks/:id", async (req, res) => {
+  const id: number = req.params.id;
+
+  if (id == null) {
+    res.json(genErrResponse("InvalidData"));
+    return;
+  }
+
+  try {
+    res.json((await Task.getOne(id)) || genErrResponse("InvalidData"));
   } catch (err) {
     res.json(genErrResponse("DBError", err));
   }
@@ -40,15 +56,8 @@ router.post("/tasks", async (req, res) => {
     return;
   }
 
-  delete task.id;
-
   try {
-    const dbres = await db.query("INSERT INTO tasks SET ?", [task]);
-    res.json({
-      ...task,
-      description: task.description || "",
-      id: dbres.insertId
-    });
+    res.json(await Task.create(task));
   } catch (err) {
     res.json(genErrResponse("DBError", err));
   }
@@ -67,14 +76,9 @@ router.put("/tasks", async (req, res) => {
   }
 
   try {
-    const { id, ...data } = task;
+    await Task.update(task);
 
-    await db.query("UPDATE tasks SET ? WHERE id=?", [data, task.id]);
-
-    res.json({
-      ...task,
-      description: task.description || ""
-    });
+    res.json({});
   } catch (err) {
     res.json(genErrResponse("DBError", err));
   }
@@ -92,7 +96,8 @@ router.delete("/tasks/:id", async (req, res) => {
   }
 
   try {
-    await db.query("DELETE FROM tasks WHERE id=?", [id]);
+    await Task.delete(id);
+
     res.json({});
   } catch (err) {
     res.json(genErrResponse("DBError", err));

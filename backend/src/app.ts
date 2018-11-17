@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import db from "./db";
 import userController from "./controllers/user";
 import taskController from "./controllers/task";
+import columnController from "./controllers/column";
 import { validateAccessToken } from "./stuff";
 
 const config = require("./config");
@@ -45,5 +46,6 @@ app.use((req, res, next) => {
 
 app.use("/api/", userController);
 app.use("/api/", taskController);
+app.use("/api/", columnController);
 
 export default app;

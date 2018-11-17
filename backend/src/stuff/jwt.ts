@@ -1,7 +1,7 @@
 import crypto from "crypto";
 
-import { IGroup } from "../models/group";
 import { Base64 } from "./base64";
+import { IUser } from "src/models/user";
 
 const JWT_KEY = require("../config").jwtKey;
 
@@ -13,10 +13,10 @@ const signData = (data: string) =>
       .digest("base64")
   );
 
-export const createAccessToken = (userGroups: IGroup[]) => {
+export const createAccessToken = (user: IUser) => {
   const accessToken = Base64.urlEncode(
     JSON.stringify({
-      groups: userGroups,
+      groupId: user.groupId,
       iss: Date.now(),
       exp: Date.now() + 24 * 60 * 60 * 1000
     })
