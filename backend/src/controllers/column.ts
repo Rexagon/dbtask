@@ -12,7 +12,7 @@ router.get("/columns", async (req, res) => {
   try {
     res.json(await Column.getAll());
   } catch (err) {
-    res.json(genErrResponse("DBError", err));
+    res.send(genErrResponse("DBError", err));
   }
 });
 
