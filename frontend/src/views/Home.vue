@@ -15,8 +15,8 @@ import { Component, Watch, Vue } from 'vue-property-decorator';
 import CColumn from '@/components/Column.vue';
 import CColumnForm from '@/components/ColumnForm.vue';
 
+import { Column } from '@/models/column';
 import state from '@/models/state';
-import { Column } from '@/models';
 
 @Component({
   components: {
@@ -34,11 +34,14 @@ export default class HomePage extends Vue {
   //////////////////////
 
   public async mounted() {
-    this.$bus.$on('fetched-columns', (columns: Column[]) => {
+    this.columns = state.columnManager.columns;
+
+    this.$bus.$on('columns-changed', (columns: Column[]) => {
       this.columns = columns;
     });
 
-    await state.columnManager.fetchAll();
+    state.columnManager.fetchAll();
+    state.taskManager.fetchAll();
   }
 }
 </script>
@@ -59,40 +62,8 @@ export default class HomePage extends Vue {
 
   overflow-x: auto;
   overflow-y: hidden;
-}
 
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-::-webkit-scrollbar-button {
-  width: 0px;
-  height: 0px;
-}
-::-webkit-scrollbar-thumb {
-  background: #e1e1e1;
-  border: 0px none #ffffff;
-  border-radius: 50px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #ffffff;
-}
-::-webkit-scrollbar-thumb:active {
-  background: #000000;
-}
-::-webkit-scrollbar-track {
-  background: #666666;
-  border: 0px none #ffffff;
-  border-radius: 0px;
-}
-::-webkit-scrollbar-track:hover {
-  background: #666666;
-}
-::-webkit-scrollbar-track:active {
-  background: #333333;
-}
-::-webkit-scrollbar-corner {
-  background: transparent;
+  @include scrollbar();
 }
 </style>
 <!-- STYLE END -->

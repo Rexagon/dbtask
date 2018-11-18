@@ -16,6 +16,9 @@ Vue.use(VueBootstrap);
 import VueNotifications from 'vue-notification';
 Vue.use(VueNotifications);
 
+import VueAutosize from 'vue-autosize';
+Vue.use(VueAutosize);
+
 Vue.config.productionTip = false;
 
 Vue.prototype.$bus = bus;

@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { State } from './state';
 import Vue from 'vue';
 import bus from '@/bus';
 
@@ -30,7 +29,7 @@ export class ColumnManager {
 
     this.columns = res.data.map((data) => new Column(data));
 
-    bus.$emit('fetched-columns', this.columns);
+    this.notify();
   }
 
   public async create(name: string) {
@@ -39,11 +38,11 @@ export class ColumnManager {
     const column = new Column(res.data);
 
     this.columns.push(column);
-    bus.$emit('fetched-columns', this.columns);
+    this.notify();
   }
 
   public async update(data: IColumnData) {
-    const res = await axios.put<IColumnData>('columns', data);
+    await axios.put('columns', data);
 
     const column = new Column(data);
     Vue.set(
@@ -51,13 +50,16 @@ export class ColumnManager {
       this.columns.findIndex((v) => v.id === data.id),
       column
     );
-    bus.$emit('fetched-columns', this.columns);
+    this.notify();
   }
 
   public async delete(id: number) {
-    const res = await axios.delete(`columns/${id}`);
-
+    await axios.delete(`columns/${id}`);
     Vue.delete(this.columns, this.columns.findIndex((v) => v.id === id));
-    bus.$emit('fetched-columns', this.columns);
+    this.notify();
+  }
+
+  public notify() {
+    bus.$emit('columns-changed', this.columns);
   }
 }

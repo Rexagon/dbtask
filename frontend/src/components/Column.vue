@@ -29,8 +29,8 @@
         </template>
       </div>
 
-      <div class="cards">
-
+      <div class="tasks">
+        <c-task v-for="task in tasks" v-bind:key="task.id" :task="task" />
       </div>
 
       <div class="task-add" @click="addTask">
@@ -50,15 +50,20 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import Icon from 'vue-awesome/components/Icon';
 
+import CTask from '@/components/Task.vue';
+
 import 'vue-awesome/icons/check';
 import 'vue-awesome/icons/ellipsis-v';
 
 import { Column } from '@/models/column';
+import { Task } from '@/models/task';
 import state from '@/models/state';
+import bus from '@/bus';
 
 @Component({
   components: {
-    Icon
+    Icon,
+    CTask
   }
 })
 export default class CColumn extends Vue {
@@ -68,10 +73,23 @@ export default class CColumn extends Vue {
   @Prop()
   public column!: Column;
 
-  public editing: boolean = false;
-
+  private editing: boolean = false;
   private newName: string = '';
   private processing: boolean = false;
+
+  private tasks: Task[] = [];
+  private creatingNewTask: boolean = false;
+
+  // Component methods //
+  //////////////////////
+
+  public mounted() {
+    this.syncTasks();
+
+    bus.$on('tasks-changed', (tasks: Task[]) => {
+      this.syncTasks();
+    });
+  }
 
   // Methods //
   ////////////
@@ -140,7 +158,15 @@ export default class CColumn extends Vue {
     this.editing = false;
   }
 
-  public addTask() {}
+  public addTask() {
+    this.creatingNewTask = true;
+  }
+
+  private syncTasks() {
+    this.tasks = state.taskManager.tasks.filter(
+      (task) => task.columnId === this.column.id
+    );
+  }
 }
 </script>
 <!-- SCRIPT END -->
@@ -196,6 +222,12 @@ export default class CColumn extends Vue {
     .header {
       padding: 0px 8px;
       font-size: 1em;
+    }
+  }
+
+  .tasks {
+    .task {
+      margin: 10px 5px;
     }
   }
 }
