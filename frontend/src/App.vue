@@ -1,6 +1,7 @@
 <!-- TEMPLATE BEGIN -->
 <template>
   <div id="app" :class="{'no-sidebar': noSidebar}">
+    <notifications position="bottom right"></notifications>
     <div class="sidebar" v-if="!noSidebar">
       <a href="/" :class="{active: checkActiveSection('home')}">
         <icon name="tasks" scale="2"></icon>
@@ -55,7 +56,7 @@ export default class App extends Vue {
 
 <!-- STYLE BEGIN -->
 <style lang="scss">
-$sidebar-width: 64px;
+@import '@/styles/general.scss';
 
 html,
 body {
@@ -133,7 +134,6 @@ body {
   .main-area {
     height: 100vh;
     margin-left: $sidebar-width;
-    overflow-x: auto;
   }
 
   &.no-sidebar {

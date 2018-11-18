@@ -43,21 +43,30 @@ router.beforeEach((to, from, next) => {
   });
 });
 
-axios.interceptors.response.use(undefined, (err) => {
-  const res = err.response;
+axios.interceptors.response.use(
+  (res) => {
+    if (res.data.err != null) {
+      return Promise.reject(res.data.err);
+    }
 
-  switch (res.status) {
-    case 200:
-      return res;
+    return Promise.resolve(res);
+  },
+  (err) => {
+    const res = err.response;
 
-    case 401:
-    case 403:
-      router.push({ name: 'login' });
-      return Promise.reject();
+    switch (res.status) {
+      case 200:
+        return res;
 
-    default:
-      return Promise.reject();
+      case 401:
+      case 403:
+        router.push({ name: 'login' });
+        return Promise.reject();
+
+      default:
+        return Promise.reject();
+    }
   }
-});
+);
 
 export default router;

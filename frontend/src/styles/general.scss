@@ -1,0 +1,51 @@
+// constants //
+//////////////
+
+$sidebar-width: 64px;
+
+// Mixings //
+////////////
+
+@mixin fancy-scrollbar() {
+  -webkit-overflow-scrolling: touch;
+  -webkit-transform: translate3d(0, 0, 0);
+
+  &::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-button:start:decrement,
+  &::-webkit-scrollbar-button:end:increment {
+    background: transparent;
+    display: none;
+  }
+
+  &::-webkit-scrollbar-track-piece {
+    background: #252525;
+  }
+
+  &::-webkit-scrollbar-track-piece:vertical:start {
+    border-radius: 4px 4px 0 0;
+  }
+
+  &::-webkit-scrollbar-track-piece:vertical:end {
+    border-radius: 0 0 4px 4px;
+  }
+
+  &::-webkit-scrollbar-track-piece:horizontal:start {
+    border-radius: 4px 0 0 4px;
+  }
+
+  &::-webkit-scrollbar-track-piece:horizontal:end {
+    border-radius: 0 4px 4px 0;
+  }
+
+  &::-webkit-scrollbar-thumb:vertical,
+  &::-webkit-scrollbar-thumb:horizontal {
+    background: #252525;
+    border-radius: 4px;
+    display: block;
+    height: 48px;
+  }
+}

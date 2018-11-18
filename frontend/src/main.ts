@@ -6,17 +6,19 @@ import Vue from 'vue';
 
 import App from './App.vue';
 import router from './router';
-import state from './models';
+import bus from './bus';
 
 import VueBootstrap from 'bootstrap-vue';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
-
 Vue.use(VueBootstrap);
+
+import VueNotifications from 'vue-notification';
+Vue.use(VueNotifications);
 
 Vue.config.productionTip = false;
 
-Vue.prototype.$state = state;
+Vue.prototype.$bus = bus;
 
 new Vue({
   router,
