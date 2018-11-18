@@ -2,6 +2,8 @@ import Vue from 'vue';
 import axios from 'axios';
 import Router from 'vue-router';
 
+import state from '@/models/state';
+
 import HomePage from './views/Home.vue';
 import LoginPage from './views/Login.vue';
 
@@ -25,6 +27,20 @@ const router = new Router({
       redirect: '/'
     }
   ]
+});
+
+router.beforeEach((to, from, next) => {
+  if (
+    (to.name && ['login'].includes(to.name)) ||
+    state.userManager.currentUser
+  ) {
+    next();
+    return;
+  }
+
+  next({
+    name: 'login'
+  });
 });
 
 axios.interceptors.response.use(undefined, (err) => {
