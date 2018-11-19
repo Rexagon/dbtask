@@ -1,8 +1,8 @@
 <!-- TEMPLATE BEGIN -->
 <template>
-  <div class="task">
+  <div class="task" v-if="isVisible">
     <b-input-group>
-      <b-input type="text" autocomplete="off" v-model="newTitle" @keyup.enter.native="onSave" @keyup.escape.native="onBlur" v-on:blur.native="onBlur" ref="name" :disabled="processing"></b-input>
+      <b-input type="text" autocomplete="off" v-model="newTitle" @keyup.enter.native="onSave" @keyup.escape.native="onBlur" v-on:blur.native="onBlur" ref="title" :disabled="processing"></b-input>
     </b-input-group>
   </div>
 </template>
@@ -20,8 +20,28 @@ export default class CTaskForm extends Vue {
   // Properties //
   ///////////////
 
+  private columnId?: number;
   private newTitle: string = '';
+  private isVisible: boolean = false;
   private processing: boolean = false;
+
+  // Component methods //
+  //////////////////////
+
+  public mounted() {
+    this.$on('show', (columnId?: number) => {
+      this.isVisible = true;
+      this.columnId = columnId;
+
+      this.$nextTick(() => {
+        const el = (this.$refs.title as Vue).$el;
+        const input = el as HTMLInputElement;
+
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+      });
+    });
+  }
 
   // Methods //
   ////////////
@@ -34,6 +54,7 @@ export default class CTaskForm extends Vue {
     try {
       const task = new Task();
       task.title = this.newTitle;
+      task.columnId = this.columnId;
       await state.taskManager.create(task);
 
       this.newTitle = '';
@@ -46,6 +67,14 @@ export default class CTaskForm extends Vue {
     }
 
     this.processing = false;
+  }
+
+  public async onBlur() {
+    if (this.processing) {
+      return;
+    }
+
+    this.isVisible = false;
   }
 }
 </script>

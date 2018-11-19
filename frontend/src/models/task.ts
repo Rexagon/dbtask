@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Vue from 'vue';
-import bus from '@/bus';
+import Bus from '@/bus';
 
 export interface ITaskData {
   id: number;
@@ -29,6 +29,17 @@ export class Task implements ITaskData {
 
 export class TaskManager {
   public tasks: Task[] = [];
+
+  constructor() {
+    Bus.on('column-deleted', (id: number) => {
+      this.tasks.map((task) => {
+        if (task.columnId === id) {
+          task.columnId = undefined;
+        }
+      });
+      this.notify();
+    });
+  }
 
   public async fetchAll() {
     const res = await axios.get<ITaskData[]>('tasks');
@@ -61,6 +72,6 @@ export class TaskManager {
   }
 
   public notify() {
-    bus.$emit('tasks-changed', this.tasks);
+    Bus.fire('tasks-changed', this.tasks);
   }
 }

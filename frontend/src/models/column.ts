@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Vue from 'vue';
-import bus from '@/bus';
+import Bus from '@/bus';
 
 export interface IColumnData {
   id: number;
@@ -56,10 +56,11 @@ export class ColumnManager {
   public async delete(id: number) {
     await axios.delete(`columns/${id}`);
     Vue.delete(this.columns, this.columns.findIndex((v) => v.id === id));
+    Bus.fire('column-deleted', id);
     this.notify();
   }
 
   public notify() {
-    bus.$emit('columns-changed', this.columns);
+    Bus.fire('columns-changed', this.columns);
   }
 }

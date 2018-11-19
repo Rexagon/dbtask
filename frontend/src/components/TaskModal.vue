@@ -14,6 +14,9 @@
           <b-form-textarea v-autosize="data.description" v-model="data.description" ref="description">
           </b-form-textarea>
         </b-form-group>
+        <b-form-group label="Колонка">
+          <b-form-select v-model="data.columnId" :options="columnOptions" />
+        </b-form-group>
       </b-form>
 
       <template slot="modal-footer">
@@ -34,6 +37,8 @@ import { Task, ITaskData } from '@/models/task';
 import state from '@/models/state';
 
 import autosize from 'autosize';
+import { Column } from '@/models/column';
+import Bus from '@/bus';
 
 @Component
 export default class TaskModal extends Vue {
@@ -43,6 +48,7 @@ export default class TaskModal extends Vue {
   private data: ITaskData = new Task();
   private processing: boolean = false;
   private isVisible: boolean = false;
+  private columnOptions: Array<{ value?: number; text: string }> = [];
 
   // Component methods //
   //////////////////////
@@ -59,6 +65,11 @@ export default class TaskModal extends Vue {
   }
 
   public mounted() {
+    this.syncColumns();
+    Bus.on('columns-changed', (columns: Column[]) => {
+      this.syncColumns();
+    });
+
     this.$on('lock', (lock: boolean) => {
       this.processing = lock;
     });
@@ -124,6 +135,15 @@ export default class TaskModal extends Vue {
     }
 
     this.processing = false;
+  }
+
+  public syncColumns() {
+    this.columnOptions = [{ text: 'Архив' }].concat(
+      state.columnManager.columns.map((column) => ({
+        value: column.id,
+        text: column.name
+      }))
+    );
   }
 }
 </script>

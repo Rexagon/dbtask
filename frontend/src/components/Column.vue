@@ -17,7 +17,7 @@
           <b-col mr="auto">
             {{ column.name }}
           </b-col>
-          <b-col cols="auto" class="p-0" style="text-align: right">
+          <b-col cols="auto" class="p-0" style="text-align: right" v-if="!immortal">
             <b-dropdown size="sm" no-caret variant="link">
               <template slot="button-content">
                 <icon name="ellipsis-v" style="position: relative; top: -2px" />
@@ -31,9 +31,10 @@
 
       <div class="tasks">
         <c-task v-for="task in tasks" v-bind:key="task.id" :task="task" />
+        <c-task-form ref="taskForm" />
       </div>
 
-      <div class="task-add" @click="addTask">
+      <div class="task-add" @click="$refs.taskForm.$emit('show', column.id)">
         <icon name="plus" style="position: relative; top: -2px" />
         <span class="text">
           Добавить задание
@@ -51,6 +52,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import Icon from 'vue-awesome/components/Icon';
 
 import CTask from '@/components/Task.vue';
+import CTaskForm from '@/components/TaskForm.vue';
 
 import 'vue-awesome/icons/check';
 import 'vue-awesome/icons/ellipsis-v';
@@ -58,12 +60,13 @@ import 'vue-awesome/icons/ellipsis-v';
 import { Column } from '@/models/column';
 import { Task } from '@/models/task';
 import state from '@/models/state';
-import bus from '@/bus';
+import Bus from '@/bus';
 
 @Component({
   components: {
     Icon,
-    CTask
+    CTask,
+    CTaskForm
   }
 })
 export default class CColumn extends Vue {
@@ -73,12 +76,16 @@ export default class CColumn extends Vue {
   @Prop()
   public column!: Column;
 
+  @Prop({
+    default: false
+  })
+  public immortal!: boolean;
+
   private editing: boolean = false;
   private newName: string = '';
   private processing: boolean = false;
 
   private tasks: Task[] = [];
-  private creatingNewTask: boolean = false;
 
   // Component methods //
   //////////////////////
@@ -86,7 +93,7 @@ export default class CColumn extends Vue {
   public mounted() {
     this.syncTasks();
 
-    bus.$on('tasks-changed', (tasks: Task[]) => {
+    Bus.on('tasks-changed', (tasks: Task[]) => {
       this.syncTasks();
     });
   }
@@ -95,7 +102,7 @@ export default class CColumn extends Vue {
   ////////////
 
   public async save() {
-    if (this.processing) {
+    if (this.processing || this.immortal) {
       return;
     }
 
@@ -134,7 +141,7 @@ export default class CColumn extends Vue {
   }
 
   public async deleteColumn() {
-    if (this.processing) {
+    if (this.processing || this.immortal) {
       return;
     }
 
@@ -158,13 +165,11 @@ export default class CColumn extends Vue {
     this.editing = false;
   }
 
-  public addTask() {
-    this.creatingNewTask = true;
-  }
-
   private syncTasks() {
     this.tasks = state.taskManager.tasks.filter(
-      (task) => task.columnId === this.column.id
+      (task) =>
+        task.columnId === this.column.id ||
+        (task.columnId == null && this.column.id === 0)
     );
   }
 }

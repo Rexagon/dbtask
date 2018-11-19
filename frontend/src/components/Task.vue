@@ -2,9 +2,9 @@
 <template>
   <div class="task">
     <div @click="$refs.modal.$emit('show', task)">
-      <h4>{{ task.title }}</h4>
+      <div>{{ task.title }}</div>
       <div>
-        <icon name="align-left" style="position: relative; top: -2px" />
+        <icon name="align-left" style="position: relative; top: -2px" v-if="hasDescription" />
       </div>
     </div>
 
@@ -38,10 +38,12 @@ export default class CTask extends Vue {
   @Prop()
   public task!: Task;
 
-  // Component methods //
+  // Methods //
   //////////////////////
 
-  public mounted() {}
+  get hasDescription() {
+    return this.task.description && this.task.description.length > 0;
+  }
 }
 </script>
 <!-- SCRIPT END -->

@@ -3,6 +3,7 @@
   <div class="home-page">
     <c-column v-for="column in columns" v-bind:key="column.id" :column="column" />
     <c-column-form />
+    <c-column :column="archiveColumn" :immortal="true" />
   </div>
 </template>
 <!-- TEMPLATE END -->
@@ -17,6 +18,7 @@ import CColumnForm from '@/components/ColumnForm.vue';
 
 import { Column } from '@/models/column';
 import state from '@/models/state';
+import Bus from '@/bus';
 
 @Component({
   components: {
@@ -29,6 +31,7 @@ export default class HomePage extends Vue {
   ///////////////
 
   public columns: Column[] = [];
+  public archiveColumn: Column = new Column({ id: 0, name: 'Архив' });
 
   // Component methods //
   //////////////////////
@@ -36,7 +39,7 @@ export default class HomePage extends Vue {
   public async mounted() {
     this.columns = state.columnManager.columns;
 
-    this.$bus.$on('columns-changed', (columns: Column[]) => {
+    Bus.on('columns-changed', (columns: Column[]) => {
       this.columns = columns;
     });
 
