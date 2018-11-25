@@ -46,8 +46,6 @@ router.post("/columns", async (req, res) => {
     return;
   }
 
-  delete column.id;
-
   try {
     res.json(await Column.create(column));
   } catch (err) {

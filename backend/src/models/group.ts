@@ -13,7 +13,7 @@ export abstract class Group {
 
   public static async getOne(id: number) {
     const [groups, users] = await Promise.all([
-      db.query<IGroup[]>("SELECT * FROM `groups` WHERE id=?", [id]),
+      db.query<IGroup[]>("SELECT * FROM `groups` WHERE id=? LIMIT 1", [id]),
       db.query<IUser[]>("SELECT * FROM users WHERE groupId=?", [id])
     ]);
 

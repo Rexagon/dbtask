@@ -17,6 +17,9 @@
         <b-form-group label="Колонка">
           <b-form-select v-model="data.columnId" :options="columnOptions" />
         </b-form-group>
+        <b-form-group label="Ответственные">
+          <div v-for="user in data.assignedUsers" :key="user.id">{{ user.login }}</div>
+        </b-form-group>
       </b-form>
 
       <template slot="modal-footer">
@@ -36,11 +39,18 @@ import { Component, Watch, Prop, Vue } from 'vue-property-decorator';
 import { Task, ITaskData } from '@/models/task';
 import state from '@/models/state';
 
+import CTaskUser from '@/components/TaskModal.vue';
+
 import autosize from 'autosize';
 import { Column } from '@/models/column';
 import Bus from '@/bus';
+import { IUserData } from '@/models/user';
 
-@Component
+@Component({
+  components: {
+    CTaskUser
+  }
+})
 export default class TaskModal extends Vue {
   // Properties //
   ///////////////

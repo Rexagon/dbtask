@@ -70,7 +70,3 @@ class Database {
 const db = new Database();
 
 export default db;
-
-export function escape<T>(value: T): string {
-  return db.escape(value);
-}

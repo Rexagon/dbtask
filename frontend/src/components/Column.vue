@@ -179,6 +179,8 @@ export default class CColumn extends Vue {
 
 <!-- STYLE BEGIN -->
 <style lang="scss">
+@import '@/styles/general.scss';
+
 .column {
   width: 272px;
   margin: 0 4px;
@@ -187,6 +189,8 @@ export default class CColumn extends Vue {
   display: inline-block;
   vertical-align: top;
   white-space: nowrap;
+  overflow-y: auto;
+  @include scrollbar();
 
   & > div {
     border-radius: 3px;

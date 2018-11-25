@@ -104,4 +104,44 @@ router.delete("/tasks/:id", async (req, res) => {
   }
 });
 
+// POST /api/tasks/:id/users/:userId //
+//////////////////////////////////////
+
+router.post("/tasks/:id/users/:userId", async (req, res) => {
+  const id: number = req.params.id;
+  const userId: number = req.params.userId;
+
+  if (id == null || userId == null) {
+    res.json(genErrResponse("InvalidData"));
+    return;
+  }
+
+  try {
+    await Task.addUser(id, userId);
+    res.json({});
+  } catch (err) {
+    res.json(genErrResponse("DBError", err));
+  }
+});
+
+// DELETE /api/tasks/:id/users/:userId //
+////////////////////////////////////////
+
+router.delete("/tasks/:id/users/:userId", async (req, res) => {
+  const id: number = req.params.id;
+  const userId: number = req.params.userId;
+
+  if (id == null || userId == null) {
+    res.json(genErrResponse("InvalidData"));
+    return;
+  }
+
+  try {
+    await Task.removeUser(id, userId);
+    res.json({});
+  } catch (err) {
+    res.json(genErrResponse("DBError", err));
+  }
+});
+
 export default router;

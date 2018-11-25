@@ -50,6 +50,20 @@ export abstract class Task {
     await db.query("UPDATE tasks SET ? WHERE id=?", [data, task.id]);
   }
 
+  public static async addUser(taskId: number, userId: number) {
+    await db.query("INSERT INTO tasks_to_users SET taskId=?, userId=?", [
+      taskId,
+      userId
+    ]);
+  }
+
+  public static async removeUser(taskId: number, userId: number) {
+    await db.query("DELETE FROM tasks_to_users WHERE taskId=? AND userId=?", [
+      taskId,
+      userId
+    ]);
+  }
+
   public static async delete(id: number) {
     await db.query("DELETE FROM tasks WHERE id=?", [id]);
   }
