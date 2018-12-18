@@ -1,7 +1,10 @@
 <!-- TEMPLATE BEGIN -->
 <template>
   <div class="task-modal">
-    <b-modal v-model="isVisible" size="lg">
+    <b-modal
+      v-model="isVisible"
+      size="lg"
+    >
       <template slot="modal-title">
         Задание
       </template>
@@ -11,21 +14,43 @@
           <b-form-input v-model="data.title" />
         </b-form-group>
         <b-form-group label="Описание">
-          <b-form-textarea v-autosize="data.description" v-model="data.description" ref="description">
+          <b-form-textarea
+            v-autosize="data.description"
+            v-model="data.description"
+            ref="description"
+          >
           </b-form-textarea>
         </b-form-group>
         <b-form-group label="Колонка">
-          <b-form-select v-model="data.columnId" :options="columnOptions" />
+          <b-form-select
+            v-model="data.columnId"
+            :options="columnOptions"
+          />
         </b-form-group>
         <b-form-group label="Ответственные">
-          <div v-for="user in data.assignedUsers" :key="user.id">{{ user.login }}</div>
+          <div
+            v-for="user in data.assignedUsers"
+            :key="user.id"
+          >{{ user.login }}</div>
         </b-form-group>
       </b-form>
 
       <template slot="modal-footer">
-        <b-button variant="outline-danger" @click="deleteTask" :disabled="processing">Удалить</b-button>
-        <b-button variant="secondary" @click="isVisible = false" :disabled="processing">Отмена</b-button>
-        <b-button variant="primary" :disabled="processing" @click="save">Сохранить</b-button>
+        <b-button
+          variant="outline-danger"
+          @click="deleteTask"
+          :disabled="processing"
+        >Удалить</b-button>
+        <b-button
+          variant="secondary"
+          @click="isVisible = false"
+          :disabled="processing"
+        >Отмена</b-button>
+        <b-button
+          variant="primary"
+          :disabled="processing"
+          @click="save"
+        >Сохранить</b-button>
       </template>
     </b-modal>
   </div>
@@ -120,10 +145,7 @@ export default class TaskModal extends Vue {
   }
 
   public async deleteTask() {
-    if (
-      this.processing ||
-      !confirm('Вы действительно хотите удалить задачу?')
-    ) {
+    if (this.processing || !confirm('Вы действительно хотите удалить задачу?')) {
       return;
     }
 
@@ -153,6 +175,12 @@ export default class TaskModal extends Vue {
         value: column.id,
         text: column.name
       }))
+    );
+  }
+
+  public syncTask() {
+    const currentTask = state.taskManager.tasks.find(
+      (task) => task.id === this.data.id
     );
   }
 }

@@ -3,13 +3,22 @@
   <div class="login-page">
     <b-form>
       <b-form-group>
-        <b-form-input type="text" v-model.trim="data.login"></b-form-input>
+        <b-form-input
+          type="text"
+          v-model.trim="data.login"
+        ></b-form-input>
       </b-form-group>
       <b-form-group>
-        <b-form-input type="password" v-model="data.password"></b-form-input>
+        <b-form-input
+          type="password"
+          v-model="data.password"
+        ></b-form-input>
       </b-form-group>
       <b-form-group>
-        <b-button style="width: 100%" @click="signin">Войти</b-button>
+        <b-button
+          style="width: 100%"
+          @click="signin"
+        >Войти</b-button>
       </b-form-group>
     </b-form>
   </div>
@@ -33,7 +42,7 @@ export default class LoginPage extends Vue {
 
       this.$router.push('/');
     } catch (err) {
-      console.log('Wrong');
+      console.log('Wrong', err);
     }
   }
 }

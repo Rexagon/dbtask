@@ -1,9 +1,16 @@
 <!-- TEMPLATE BEGIN -->
 <template>
   <div class="home-page">
-    <c-column v-for="column in columns" v-bind:key="column.id" :column="column" />
+    <c-column
+      v-for="column in columns"
+      v-bind:key="column.id"
+      :column="column"
+    />
     <c-column-form />
-    <c-column :column="archiveColumn" :immortal="true" />
+    <c-column
+      :column="archiveColumn"
+      :immortal="true"
+    />
   </div>
 </template>
 <!-- TEMPLATE END -->
