@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { EventProducer } from './event';
 
 const LOCAL_STORAGE_ACCESS_TOKEN = 'access-token';
 const LOCAL_STORAGE_USER_DATA = 'user-data';
@@ -32,10 +33,13 @@ export class User implements IUserData {
   }
 }
 
-export class UserManager {
+export class UserManager extends EventProducer {
   public currentUser: User | null = null;
 
+  public users: User[] = [];
+
   constructor() {
+    super();
     this.restoreData();
   }
 
@@ -54,7 +58,10 @@ export class UserManager {
 
   public async fetchAll() {
     const res = await axios.get<IUserData[]>('users');
-    return res.data;
+
+    this.users = res.data.map((user) => new User(user));
+
+    this.notify('fetched', this.users);
   }
 
   private storeData(token?: string, userData?: IUserData) {

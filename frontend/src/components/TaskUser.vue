@@ -1,8 +1,6 @@
 <!-- TEMPLATE BEGIN -->
 <template>
-  <div class="task-user">
-
-  </div>
+  <div class="task-user"></div>
 </template>
 <!-- TEMPLATE END -->
 
@@ -25,9 +23,7 @@ export default class CTaskUser extends Vue {
   // Methods //
   ////////////
 
-  public remove() {
-    
-  }
+  public remove() {}
 }
 </script>
 <!-- SCRIPT END -->

@@ -1,14 +1,10 @@
 <!-- TEMPLATE BEGIN -->
 <template>
-  <div class="task">
-    <div @click="$refs.modal.$emit('show', task)">
-      <div>{{ task.title }}</div>
-      <div>
-        <icon name="align-left" style="position: relative; top: -2px" v-if="hasDescription" />
-      </div>
+  <div class="task" @click="showModal">
+    <div>{{ task.title }}</div>
+    <div>
+      <icon name="align-left" style="position: relative; top: -2px" v-if="hasDescription"/>
     </div>
-
-    <c-task-modal ref="modal" />
   </div>
 </template>
 <!-- TEMPLATE END -->
@@ -17,18 +13,18 @@
 <!-- SCRIPT BEGIN -->
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import Icon from 'vue-awesome/components/Icon';
 
+import Icon from 'vue-awesome/components/Icon';
 import CTaskModal from '@/components/TaskModal.vue';
 
 import 'vue-awesome/icons/align-left';
 
 import { Task } from '@/models/task';
+import state from '@/models/state';
 
 @Component({
   components: {
-    Icon,
-    CTaskModal
+    Icon
   }
 })
 export default class CTask extends Vue {
@@ -39,7 +35,14 @@ export default class CTask extends Vue {
   public task!: Task;
 
   // Methods //
-  //////////////////////
+  ////////////
+
+  public showModal() {
+    state.notify('show-task-modal', this.task);
+  }
+
+  // Computed //
+  /////////////
 
   get hasDescription() {
     return this.task.description && this.task.description.length > 0;

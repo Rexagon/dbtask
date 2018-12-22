@@ -1,9 +1,9 @@
 <!-- TEMPLATE BEGIN -->
 <template>
-  <div id="app" :class="{'no-sidebar': noSidebar}">
+  <div id="app" :class="{ 'no-sidebar': noSidebar }">
     <notifications position="bottom right"></notifications>
     <div class="sidebar" v-if="!noSidebar">
-      <a href="/" :class="{active: checkActiveSection('home')}">
+      <a href="/" :class="{ active: checkActiveSection('home') }">
         <icon name="tasks" scale="2"></icon>
       </a>
       <a href="/users">
@@ -14,12 +14,11 @@
       </a>
     </div>
     <div class="main-area">
-      <router-view />
+      <router-view/>
     </div>
   </div>
 </template>
 <!-- TEMPLATE END -->
-
 
 <!-- SCRIPT BEGIN -->
 <script lang="ts">
@@ -29,14 +28,27 @@ import Icon from 'vue-awesome/components/Icon';
 import 'vue-awesome/icons/tasks';
 import 'vue-awesome/icons/user-edit';
 import 'vue-awesome/icons/sign-out-alt';
+
 import state from '@/models/state';
 
-@Component({
+@Component<App>({
   components: {
     Icon
   }
 })
 export default class App extends Vue {
+  // Component methods //
+  //////////////////////
+
+  public async mounted() {
+    state.columnManager.fetchAll();
+    state.taskManager.fetchAll();
+    state.userManager.fetchAll();
+  }
+
+  // Methods //
+  ////////////
+
   public checkActiveSection(name: string) {
     return this.$route.name === name;
   }
@@ -52,7 +64,6 @@ export default class App extends Vue {
 }
 </script>
 <!-- SCRIPT END -->
-
 
 <!-- STYLE BEGIN -->
 <style lang="scss">
@@ -143,4 +154,4 @@ body {
   }
 }
 </style>
-<!-- TEMPLATE END -->
+<!-- STYLE END -->

@@ -2,7 +2,16 @@
 <template>
   <div class="task" v-if="isVisible">
     <b-input-group>
-      <b-input type="text" autocomplete="off" v-model="newTitle" @keyup.enter.native="onSave" @keyup.escape.native="onBlur" v-on:blur.native="onBlur" ref="title" :disabled="processing"></b-input>
+      <b-input
+        type="text"
+        autocomplete="off"
+        v-model="newTitle"
+        @keyup.enter.native="onSave"
+        @keyup.escape.native="onBlur"
+        v-on:blur.native="onBlur"
+        ref="title"
+        :disabled="processing"
+      ></b-input>
     </b-input-group>
   </div>
 </template>
@@ -12,11 +21,12 @@
 <!-- SCRIPT BEGIN -->
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import state from '@/models/state';
+
 import { Task } from '@/models/task';
+import state from '@/models/state';
 
 @Component
-export default class CTaskForm extends Vue {
+export default class CNewTask extends Vue {
   // Properties //
   ///////////////
 

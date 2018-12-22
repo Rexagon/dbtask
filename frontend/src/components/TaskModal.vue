@@ -1,56 +1,48 @@
 <!-- TEMPLATE BEGIN -->
 <template>
   <div class="task-modal">
-    <b-modal
-      v-model="isVisible"
-      size="lg"
-    >
-      <template slot="modal-title">
-        Задание
-      </template>
+    <b-modal v-model="isVisible" size="lg">
+      <template slot="modal-title">Задание</template>
 
-      <b-form>
+      <b-form @submit.prevent="save">
         <b-form-group label="Название">
-          <b-form-input v-model="data.title" />
+          <b-form-input v-model="data.title"/>
         </b-form-group>
         <b-form-group label="Описание">
           <b-form-textarea
             v-autosize="data.description"
             v-model="data.description"
             ref="description"
-          >
-          </b-form-textarea>
+          ></b-form-textarea>
         </b-form-group>
         <b-form-group label="Колонка">
-          <b-form-select
-            v-model="data.columnId"
-            :options="columnOptions"
-          />
+          <b-form-select v-model="data.columnId" :options="columnOptions"/>
         </b-form-group>
         <b-form-group label="Ответственные">
-          <div
-            v-for="user in data.assignedUsers"
-            :key="user.id"
-          >{{ user.login }}</div>
+          <div class="users-list">
+            <div
+              v-b-tooltip.hover
+              :title="`${user.firstName} ${user.lastName}`"
+              v-for="user in data.assignedUsers"
+              :key="user.id"
+            >@{{ user.login }}</div>
+          </div>
+          <b-form-select style="width: 200px" v-model="data.users" :options="userOptions"/>
         </b-form-group>
       </b-form>
 
       <template slot="modal-footer">
-        <b-button
-          variant="outline-danger"
-          @click="deleteTask"
-          :disabled="processing"
-        >Удалить</b-button>
-        <b-button
-          variant="secondary"
-          @click="isVisible = false"
-          :disabled="processing"
-        >Отмена</b-button>
-        <b-button
-          variant="primary"
-          :disabled="processing"
-          @click="save"
-        >Сохранить</b-button>
+        <b-row class="w-100 m-0">
+          <b-col cols="auto" class="order-3 p-0">
+            <b-button variant="primary" :disabled="processing" @click="save">Сохранить</b-button>
+          </b-col>
+          <b-col cols="auto" class="order-2 m-0">
+            <b-button variant="secondary" @click="isVisible = false" :disabled="processing">Отмена</b-button>
+          </b-col>
+          <b-col cols="auto" class="order-1 mr-auto pl-0">
+            <b-button variant="outline-danger" @click="deleteTask" :disabled="processing">Удалить</b-button>
+          </b-col>
+        </b-row>
       </template>
     </b-modal>
   </div>
@@ -61,15 +53,14 @@
 <!-- SCRIPT BEIGN -->
 <script lang="ts">
 import { Component, Watch, Prop, Vue } from 'vue-property-decorator';
-import { Task, ITaskData } from '@/models/task';
-import state from '@/models/state';
+import autosize from 'autosize';
 
 import CTaskUser from '@/components/TaskModal.vue';
 
-import autosize from 'autosize';
-import { Column } from '@/models/column';
-import Bus from '@/bus';
+import { Task, ITaskData } from '@/models/task';
 import { IUserData } from '@/models/user';
+import { Column } from '@/models/column';
+import state from '@/models/state';
 
 @Component({
   components: {
@@ -83,10 +74,50 @@ export default class TaskModal extends Vue {
   private data: ITaskData = new Task();
   private processing: boolean = false;
   private isVisible: boolean = false;
+  private selectedUserId?: number;
+
   private columnOptions: Array<{ value?: number; text: string }> = [];
+  private userOptions: Array<{ value?: number; text: string }> = [];
 
   // Component methods //
   //////////////////////
+
+  public created() {
+    this.syncColumns();
+    this.syncUsers();
+
+    this.$subscribeTo(state.columnManager.eventBus, () => {
+      this.syncColumns();
+    });
+
+    this.$subscribeTo(state.userManager.eventBus, () => {
+      this.syncUsers();
+    });
+
+    this.$on('lock', (lock: boolean) => {
+      this.processing = lock;
+    });
+
+    this.$on('show', (task?: ITaskData) => {
+      this.data = Object.assign({}, task) || new Task();
+      autosize((this.$refs.description as Vue).$el);
+
+      if (this.data.id !== 0) {
+        state.taskManager.fetchOne(this.data.id).then(() => {
+          const index = state.taskManager.tasks.findIndex(
+            (task) => task.id === this.data.id
+          );
+          if (index < 0) {
+            return;
+          }
+          this.data.assignedUsers =
+            state.taskManager.tasks[index].assignedUsers;
+        });
+      }
+
+      this.isVisible = true;
+    });
+  }
 
   @Watch('task', {
     immediate: true
@@ -101,19 +132,6 @@ export default class TaskModal extends Vue {
 
   public mounted() {
     this.syncColumns();
-    Bus.on('columns-changed', (columns: Column[]) => {
-      this.syncColumns();
-    });
-
-    this.$on('lock', (lock: boolean) => {
-      this.processing = lock;
-    });
-
-    this.$on('show', (task?: ITaskData) => {
-      this.data = Object.assign({}, task) || new Task();
-      autosize((this.$refs.description as Vue).$el);
-      this.isVisible = true;
-    });
   }
 
   // Methods //
@@ -145,7 +163,10 @@ export default class TaskModal extends Vue {
   }
 
   public async deleteTask() {
-    if (this.processing || !confirm('Вы действительно хотите удалить задачу?')) {
+    if (
+      this.processing ||
+      !confirm('Вы действительно хотите удалить задачу?')
+    ) {
       return;
     }
 
@@ -158,6 +179,8 @@ export default class TaskModal extends Vue {
         title: 'Задача удалена',
         duration: 1500
       });
+
+      this.isVisible = false;
     } catch (err) {
       this.$notify({
         title: 'Невозможно удалить задачу',
@@ -178,10 +201,11 @@ export default class TaskModal extends Vue {
     );
   }
 
-  public syncTask() {
-    const currentTask = state.taskManager.tasks.find(
-      (task) => task.id === this.data.id
-    );
+  public syncUsers() {
+    this.userOptions = state.userManager.users.map((user) => ({
+      value: user.id,
+      text: user.login
+    }));
   }
 }
 </script>
@@ -198,14 +222,17 @@ export default class TaskModal extends Vue {
     @include no-scrollbar();
   }
 
-  footer {
+  .users-list {
     display: flex;
-    flex-direction: row;
+    flex-wrap: wrap;
 
-    button {
-      &:first-child {
-        margin-right: auto;
-      }
+    & > div {
+      max-width: 100px;
+      background-color: #3c3c3c;
+      border: 1px solid #3c3c3c;
+      margin: 0px 5px 5px 0px;
+      padding: 0.375rem 1.75rem 0.375rem 0.75rem;
+      font-weight: bold;
     }
   }
 }

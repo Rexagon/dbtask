@@ -1,5 +1,5 @@
-import db from "../db";
-import { inRange } from "../stuff";
+import db from '../db';
+import { inRange } from '../stuff';
 
 export interface IUser {
   id: number;
@@ -26,15 +26,14 @@ export abstract class User {
       isPasswordInvalid: this.checkPasswordInvalid(user.password),
       isFirstNameInvalid:
         user.firstName == null || !inRange(user.firstName, 1, 255),
-      isLastNameInvalid:
-        user.lastName == null || !inRange(user.lastName, 1, 255)
+      isLastNameInvalid: user.lastName == null || !inRange(user.lastName, 1, 255)
     };
   }
 
   public static async getAll() {
-    const users = await db.query<IUser[]>("SELECT * FROM users");
+    const users = await db.query<IUser[]>('SELECT * FROM users');
 
-    return users.map(user => ({
+    return users.map((user) => ({
       ...user,
       password: undefined
     }));
@@ -64,7 +63,7 @@ export abstract class User {
   public static async create(user: IUser) {
     const { id, ...data } = user;
 
-    const res = await db.query("INSERT INTO users SET ?", [data]);
+    const res = await db.query('INSERT INTO users SET ?', [data]);
 
     return {
       ...data,
@@ -76,10 +75,10 @@ export abstract class User {
   public static async update(user: IUser) {
     const { id, login, password, ...data } = user;
 
-    await db.query("UPDATE users SET ? WHERE id=?", [data, id]);
+    await db.query('UPDATE users SET ? WHERE id=?', [data, id]);
   }
 
   public static async delete(id: number) {
-    await db.query("DELETE FROM users WHERE id=?", [id]);
+    await db.query('DELETE FROM users WHERE id=?', [id]);
   }
 }

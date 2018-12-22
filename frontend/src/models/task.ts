@@ -1,6 +1,9 @@
 import axios from 'axios';
-import Vue from 'vue';
-import Bus from '@/bus';
+
+import { filter } from 'rxjs/operators';
+
+import { State } from './state';
+import { Event, EventProducer } from './event';
 import { IUserData } from './user';
 
 export interface ITaskData {
@@ -31,57 +34,84 @@ export class Task implements ITaskData {
   }
 }
 
-export class TaskManager {
+export class TaskManager extends EventProducer {
   public tasks: Task[] = [];
 
-  constructor() {
-    Bus.on('column-deleted', (id: number) => {
-      this.tasks.map((task) => {
-        if (task.columnId === id) {
-          task.columnId = undefined;
-        }
+  constructor(state: State) {
+    super();
+
+    state.columnManager.eventBus
+      .pipe(filter((event) => event.type === 'removed'))
+      .subscribe((event: Event<number>) => {
+        this.tasks.map((task) => {
+          if (task.columnId === event.data) {
+            task.columnId = undefined;
+          }
+        });
+
+        this.notify('fetched', this.tasks);
       });
-      this.notify();
-    });
   }
 
   public async fetchAll() {
     const res = await axios.get<ITaskData[]>('tasks');
 
     this.tasks = res.data.map((data) => new Task(data));
-    this.notify();
+
+    this.notify('fetched', this.tasks);
   }
 
   public async fetchOne(id: number) {
     const res = await axios.get<ITaskData>(`tasks/${id}`);
 
+    const index = this.tasks.findIndex((task) => task.id === id);
+
     const task = new Task(res.data);
-    console.log(task);
-    Vue.set(this.tasks, this.tasks.findIndex((v) => v.id === id), task);
-    this.notify();
+
+    if (index < 0) {
+      this.tasks.push(task);
+    } else {
+      this.tasks[index] = task;
+    }
+
+    this.notify('updated', task);
   }
 
   public async create(data: ITaskData) {
     const res = await axios.post<ITaskData>('tasks', data);
 
     const task = new Task(res.data);
-
     this.tasks.push(task);
-    this.notify();
+
+    this.notify('created', task);
   }
 
   public async update(data: ITaskData) {
     await axios.put('tasks', data);
 
-    const task = new Task(data);
-    Vue.set(this.tasks, this.tasks.findIndex((v) => v.id === data.id), task);
-    this.notify();
+    const index = this.tasks.findIndex((task) => task.id === data.id);
+
+    if (index < 0) {
+      return;
+    }
+
+    this.tasks[index] = new Task(data);
+
+    this.notify('updated', this.tasks[index]);
   }
 
   public async delete(id: number) {
     await axios.delete(`tasks/${id}`);
-    Vue.delete(this.tasks, this.tasks.findIndex((v) => v.id === id));
-    this.notify();
+
+    const index = this.tasks.findIndex((task) => task.id === id);
+
+    if (index < 0) {
+      return;
+    }
+
+    this.tasks.splice(index, 1);
+
+    this.notify('removed', id);
   }
 
   public async addUser(taskId: number, userId: number) {
@@ -92,9 +122,5 @@ export class TaskManager {
   public async removeUser(taskId: number, userId: number) {
     await axios.delete(`tasks/${taskId}/users/${userId}`);
     await this.fetchOne(taskId);
-  }
-
-  public notify() {
-    Bus.fire('tasks-changed', this.tasks);
   }
 }

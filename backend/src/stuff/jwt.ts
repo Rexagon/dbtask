@@ -1,16 +1,16 @@
-import crypto from "crypto";
+import crypto from 'crypto';
 
-import { Base64 } from "./base64";
-import { IUser } from "src/models/user";
+import { Base64 } from './base64';
+import { IUser } from 'src/models/user';
 
-const JWT_KEY = require("../config").jwtKey;
+const JWT_KEY = require('../config').jwtKey;
 
 const signData = (data: string) =>
   Base64.urlEncode(
     crypto
-      .createHmac("sha256", JWT_KEY)
+      .createHmac('sha256', JWT_KEY)
       .update(data)
-      .digest("base64")
+      .digest('base64')
   );
 
 export const createAccessToken = (user: IUser) => {

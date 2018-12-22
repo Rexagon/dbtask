@@ -3,22 +3,13 @@
   <div class="login-page">
     <b-form>
       <b-form-group>
-        <b-form-input
-          type="text"
-          v-model.trim="data.login"
-        ></b-form-input>
+        <b-form-input type="text" v-model.trim="data.login"></b-form-input>
       </b-form-group>
       <b-form-group>
-        <b-form-input
-          type="password"
-          v-model="data.password"
-        ></b-form-input>
+        <b-form-input type="password" v-model="data.password"></b-form-input>
       </b-form-group>
       <b-form-group>
-        <b-button
-          style="width: 100%"
-          @click="signin"
-        >Войти</b-button>
+        <b-button style="width: 100%" @click="signin">Войти</b-button>
       </b-form-group>
     </b-form>
   </div>
@@ -32,7 +23,7 @@ import { Component, Vue } from 'vue-property-decorator';
 import { ISignInData } from '@/models/user';
 import state from '@/models/state';
 
-@Component
+@Component<LoginPage>({})
 export default class LoginPage extends Vue {
   public data: ISignInData = { login: '', password: '' };
 

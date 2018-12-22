@@ -18,6 +18,9 @@ Vue.use(VueNotifications);
 import VueAutosize from 'vue-autosize';
 Vue.use(VueAutosize);
 
+import VueRx from 'vue-rx';
+Vue.use(VueRx);
+
 Vue.config.productionTip = false;
 
 new Vue({
