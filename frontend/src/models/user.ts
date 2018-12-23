@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Vue from 'vue';
 import { EventProducer } from './event';
 
 const LOCAL_STORAGE_ACCESS_TOKEN = 'access-token';
@@ -72,7 +73,41 @@ export class UserManager extends EventProducer {
 
     this.users = res.data.map((user) => new User(user));
 
+    const index = this.users.findIndex(
+      (user) => this.currentUser != null && user.id === this.currentUser.id
+    );
+
+    if (index >= 0) {
+      this.currentUser = this.users[index];
+    }
+
     this.notify('fetched', this.users);
+  }
+
+  public async update(data: IUserData) {
+    if (this.currentUser == null) {
+      return;
+    }
+
+    await axios.put('users', data);
+
+    const index = this.users.findIndex(
+      (user) => this.currentUser != null && user.id === this.currentUser.id
+    );
+
+    if (index < 0) {
+      return;
+    }
+
+    const user = this.users[index];
+    user.firstName = data.firstName;
+    user.lastName = data.lastName;
+
+    Vue.set(this.users, index, user);
+    this.currentUser = user;
+    console.log(this.currentUser);
+
+    this.notify('updated', user);
   }
 
   private storeData(token?: string, userData?: IUserData) {

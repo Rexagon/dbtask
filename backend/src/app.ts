@@ -30,13 +30,7 @@ app.use((req, res, next) => {
   try {
     if (req.headers.authorization == null) throw new Error();
 
-    const regex = /Bearer ([\w\d]+\.[\w\d]+)/;
-    const matchingResult = regex.exec(req.headers.authorization);
-
-    if (
-      matchingResult == null ||
-      validateAccessToken(matchingResult[1]) == false
-    ) {
+    if (!validateAccessToken(req.headers.authorization)) {
       throw new Error();
     }
 

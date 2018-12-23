@@ -2,7 +2,7 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 
 import { IUser, User } from '../models/user';
-import { genErrResponse, createAccessToken } from '../stuff';
+import { genErrResponse, createAccessToken, parseAccessToken } from '../stuff';
 
 const router = express.Router();
 
@@ -95,8 +95,10 @@ router.put('/users', async (req, res) => {
   const user = req.body as IUser;
   const validated = User.validate(user);
 
+  const token = parseAccessToken(req.headers.authorization || '');
+
   if (
-    validated.isIdInvalid ||
+    token == null ||
     validated.isFirstNameInvalid ||
     validated.isLastNameInvalid
   ) {
@@ -105,7 +107,7 @@ router.put('/users', async (req, res) => {
   }
 
   try {
-    await User.update(user);
+    await User.update({ ...user, id: token.userId });
     res.json({});
   } catch (err) {
     res.json(genErrResponse('DBError', err));

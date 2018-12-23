@@ -23,8 +23,8 @@
             <div
               v-b-tooltip.hover
               :title="`${user.firstName} ${user.lastName}`"
-              v-for="user in assignedUsers"
-              :key="user.id"
+              v-for="(user, index) in assignedUsers"
+              :key="`user-${index}`"
             >
               <span class="text">@{{ user.login }}</span>
               <span class="delete" @click="removeAssigned(user.id)">
@@ -121,6 +121,8 @@ export default class TaskModal extends Vue {
 
       if (this.data.id !== 0) {
         state.taskManager.fetchOne(this.data.id).then(() => {
+          console.log(this.data.id);
+
           const index = state.taskManager.tasks.findIndex(
             (task) => task.id === this.data.id
           );
@@ -279,17 +281,13 @@ export default class TaskModal extends Vue {
       return [];
     }
 
-    return this.data.assignedUsers.map((userId) => {
-      const index = state.userManager.users.findIndex(
-        (user) => user.id === userId
+    return this.data.assignedUsers
+      .filter((userId) =>
+        state.userManager.users.some((user) => user.id === userId)
+      )
+      .map((userId) =>
+        state.userManager.users.find((user) => user.id === userId)
       );
-
-      if (index < 0) {
-        return null;
-      }
-
-      return state.userManager.users[index];
-    });
   }
 }
 </script>

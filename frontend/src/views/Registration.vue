@@ -73,5 +73,6 @@ export default class RegistrationPage extends Vue {
 
 <!-- STYLE BEGIN -->
 <style lang="scss">
+@import '@/styles/general.scss';
 </style>
 <!-- STYLE END -->

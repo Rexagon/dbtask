@@ -48,6 +48,8 @@ export default class LoginPage extends Vue {
 
 <!-- STYLE BEGIN -->
 <style lang="scss">
+@import '@/styles/general.scss';
+
 .auth-page {
   width: 100%;
   height: 100%;

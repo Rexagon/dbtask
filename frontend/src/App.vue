@@ -71,26 +71,6 @@ body {
   background-color: #1e1e1e !important;
   color: #acacac !important;
   height: 100%;
-
-  .btn {
-    border-radius: 0;
-  }
-
-  .form-control {
-    border-radius: 1px;
-    box-shadow: none;
-    color: #acacac;
-    border: 1px solid #3c3c3c;
-    background-color: #3c3c3c;
-
-    &:focus {
-      color: #acacac;
-      background-color: #3c3c3c;
-      border: 1px solid #175b89;
-      outline: 0;
-      box-shadow: none;
-    }
-  }
 }
 
 #app {

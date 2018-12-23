@@ -4,32 +4,66 @@ $sidebar-width: 64px;
 
 // Change bootstrap style //
 ///////////////////////////
-.modal-dialog {
-  .modal-content {
+#app {
+  .btn {
     border-radius: 0;
-    background-color: #1e1e1e;
-    .close {
+  }
+
+  .form-control {
+    border-radius: 1px;
+    box-shadow: none;
+    color: #acacac;
+    border: 1px solid #3c3c3c;
+    background-color: #3c3c3c;
+
+    &:focus {
       color: #acacac;
-      &:not(:disabled):not(.disabled):hover,
-      &:not(:disabled):not(.disabled):focus {
+      background-color: #3c3c3c;
+      border: 1px solid #175b89;
+      outline: 0;
+      box-shadow: none;
+    }
+
+    &:disabled,
+    &[readonly] {
+      background-color: #3c3c3c;
+      opacity: 1;
+    }
+  }
+
+  .modal-dialog {
+    .modal-content {
+      border-radius: 0;
+      background-color: #1e1e1e;
+      .close {
         color: #acacac;
+        &:not(:disabled):not(.disabled):hover,
+        &:not(:disabled):not(.disabled):focus {
+          color: #acacac;
+        }
+      }
+      .modal-header {
+        padding-bottom: 0;
+        border: 0;
+      }
+      .modal-footer {
+        padding-top: 0px;
+        border: 0;
       }
     }
-    .modal-header {
-      padding-bottom: 0;
-      border: 0;
-    }
-    .modal-footer {
-      padding-top: 0px;
-      border: 0;
+  }
+
+  .form-control select {
+    option {
+      padding: 5px;
     }
   }
 }
 
-.form-control select {
-  option {
-    padding: 5px;
-  }
+.card {
+  border-radius: 1px;
+  border: 1px solid #3c3c3c;
+  background-color: #3c3c3c;
 }
 
 // Mixings //
