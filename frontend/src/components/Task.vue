@@ -1,9 +1,11 @@
 <!-- TEMPLATE BEGIN -->
 <template>
-  <div class="task" @click="showModal">
-    <div>{{ task.title }}</div>
-    <div>
-      <icon name="align-left" style="position: relative; top: -2px" v-if="hasDescription"/>
+  <div class="task" v-bind:class="{'my-task': isMy}" @click="showModal">
+    <div class="wrapper">
+      <div class="title">{{ task.title }}</div>
+      <div>
+        <icon name="align-left" style="position: relative; top: -2px" v-if="hasDescription"/>
+      </div>
     </div>
   </div>
 </template>
@@ -47,6 +49,15 @@ export default class CTask extends Vue {
   get hasDescription() {
     return this.task.description && this.task.description.length > 0;
   }
+
+  get isMy() {
+    const currentUser = state.userManager.currentUser;
+
+    return (
+      this.task.assignedUsers &&
+      this.task.assignedUsers.includes(currentUser ? currentUser.id : 0)
+    );
+  }
 }
 </script>
 <!-- SCRIPT END -->
@@ -57,13 +68,20 @@ export default class CTask extends Vue {
 @import '@/styles/general.scss';
 
 .task {
-  padding: 5px 10px;
   background-color: #444444;
   box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 0.1);
   cursor: pointer;
 
   &:hover {
     background-color: #555555;
+  }
+
+  .wrapper {
+    padding: 5px 10px;
+  }
+
+  &.my-task .wrapper {
+    box-shadow: inset -2px 0px 0px 0px var(--warning);
   }
 }
 </style>

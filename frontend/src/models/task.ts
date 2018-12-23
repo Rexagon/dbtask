@@ -4,14 +4,13 @@ import { filter } from 'rxjs/operators';
 
 import { State } from './state';
 import { Event, EventProducer } from './event';
-import { IUserData } from './user';
 
 export interface ITaskData {
   id: number;
   title: string;
   description: string;
   columnId?: number;
-  assignedUsers?: IUserData[];
+  assignedUsers?: number[];
 }
 
 export class Task implements ITaskData {
@@ -19,7 +18,7 @@ export class Task implements ITaskData {
   public title: string = '';
   public description: string = '';
   public columnId?: number;
-  public assignedUsers?: IUserData[];
+  public assignedUsers?: number[];
 
   constructor(data?: ITaskData) {
     if (data == null) {

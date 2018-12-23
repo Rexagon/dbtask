@@ -1,16 +1,17 @@
 import express from 'express';
 
-import { ITask, Task } from '../models/task';
+import { ITaskWithUsers, Task } from '../models/task';
 import { inRange, genErrResponse } from '../stuff';
-import { IUser } from 'src/models/user';
 
 const router = express.Router();
 
-const taskValidator = (task: ITask) => {
+const taskValidator = (task: ITaskWithUsers) => {
   return {
     isIdInvalid: task.id == null,
     isTitleInvalid: task.title == null || !inRange(task.title, 1, 255),
-    isDescriptionInvalid: task.description == null || task.description.length < 1
+    isDescriptionInvalid:
+      task.description == null || task.description.length < 1,
+    isUsersArrayInvalid: task.assignedUsers == null
   };
 };
 
@@ -47,7 +48,7 @@ router.get('/tasks/:id', async (req, res) => {
 ////////////////////
 
 router.post('/tasks', async (req, res) => {
-  const task = req.body as ITask;
+  const task = req.body as ITaskWithUsers;
   const validated = taskValidator(task);
 
   if (validated.isTitleInvalid) {
@@ -66,7 +67,7 @@ router.post('/tasks', async (req, res) => {
 ///////////////////
 
 router.put('/tasks', async (req, res) => {
-  const task = req.body as ITask;
+  const task = req.body as ITaskWithUsers;
   const validated = taskValidator(task);
 
   if (validated.isIdInvalid || validated.isTitleInvalid) {

@@ -23,11 +23,23 @@
             <div
               v-b-tooltip.hover
               :title="`${user.firstName} ${user.lastName}`"
-              v-for="user in data.assignedUsers"
+              v-for="user in assignedUsers"
               :key="user.id"
-            >@{{ user.login }}</div>
+            >
+              <span class="text">@{{ user.login }}</span>
+              <span class="delete" @click="removeAssigned(user.id)">
+                <icon name="times"/>
+              </span>
+            </div>
+            <b-input-group style="width: 200px" v-if="userOptions.length > 0">
+              <b-form-select v-model="selectedUserId" :options="userOptions"/>
+              <b-input-group-append>
+                <b-btn variant="success" @click="addAssigned" :disabled="selectedUserId == null">
+                  <icon name="plus" style="position: relative; top: -2px"/>
+                </b-btn>
+              </b-input-group-append>
+            </b-input-group>
           </div>
-          <b-form-select style="width: 200px" v-model="data.users" :options="userOptions"/>
         </b-form-group>
       </b-form>
 
@@ -55,7 +67,11 @@
 import { Component, Watch, Prop, Vue } from 'vue-property-decorator';
 import autosize from 'autosize';
 
+import Icon from 'vue-awesome/components/Icon';
 import CTaskUser from '@/components/TaskModal.vue';
+
+import 'vue-awesome/icons/plus';
+import 'vue-awesome/icons/times';
 
 import { Task, ITaskData } from '@/models/task';
 import { IUserData } from '@/models/user';
@@ -64,6 +80,7 @@ import state from '@/models/state';
 
 @Component({
   components: {
+    Icon,
     CTaskUser
   }
 })
@@ -74,7 +91,7 @@ export default class TaskModal extends Vue {
   private data: ITaskData = new Task();
   private processing: boolean = false;
   private isVisible: boolean = false;
-  private selectedUserId?: number;
+  private selectedUserId: number | null = null;
 
   private columnOptions: Array<{ value?: number; text: string }> = [];
   private userOptions: Array<{ value?: number; text: string }> = [];
@@ -112,9 +129,12 @@ export default class TaskModal extends Vue {
           }
           this.data.assignedUsers =
             state.taskManager.tasks[index].assignedUsers;
+
+          this.syncUsers();
         });
       }
 
+      this.selectedUserId = null;
       this.isVisible = true;
     });
   }
@@ -192,6 +212,43 @@ export default class TaskModal extends Vue {
     this.processing = false;
   }
 
+  public addAssigned() {
+    if (this.selectedUserId == null) {
+      return;
+    }
+
+    if (this.data.assignedUsers == null) {
+      this.data.assignedUsers = [];
+    } else if (this.data.assignedUsers.includes(this.selectedUserId)) {
+      return;
+    }
+
+    const index = state.userManager.users.findIndex(
+      (user) => user.id === this.selectedUserId
+    );
+    if (index < 0) {
+      return;
+    }
+
+    this.data.assignedUsers.push(state.userManager.users[index].id);
+    this.selectedUserId = null;
+    this.syncUsers();
+  }
+
+  public removeAssigned(id: number) {
+    if (this.data.assignedUsers == null) {
+      return;
+    }
+
+    const index = this.data.assignedUsers.findIndex((user) => user === id);
+    if (index < 0) {
+      return;
+    }
+
+    Vue.delete(this.data.assignedUsers, index);
+    this.syncUsers();
+  }
+
   public syncColumns() {
     this.columnOptions = [{ text: 'Архив' }].concat(
       state.columnManager.columns.map((column) => ({
@@ -202,10 +259,37 @@ export default class TaskModal extends Vue {
   }
 
   public syncUsers() {
-    this.userOptions = state.userManager.users.map((user) => ({
-      value: user.id,
-      text: user.login
-    }));
+    this.userOptions = state.userManager.users
+      .filter(
+        (user) =>
+          this.data.assignedUsers == null ||
+          !this.data.assignedUsers.some((assigned) => assigned === user.id)
+      )
+      .map((user) => ({
+        value: user.id,
+        text: `@${user.login}`
+      }));
+  }
+
+  // Computed //
+  /////////////
+
+  public get assignedUsers() {
+    if (this.data.assignedUsers == null) {
+      return [];
+    }
+
+    return this.data.assignedUsers.map((userId) => {
+      const index = state.userManager.users.findIndex(
+        (user) => user.id === userId
+      );
+
+      if (index < 0) {
+        return null;
+      }
+
+      return state.userManager.users[index];
+    });
   }
 }
 </script>
@@ -227,12 +311,33 @@ export default class TaskModal extends Vue {
     flex-wrap: wrap;
 
     & > div {
-      max-width: 100px;
       background-color: #3c3c3c;
       border: 1px solid #3c3c3c;
       margin: 0px 5px 5px 0px;
-      padding: 0.375rem 1.75rem 0.375rem 0.75rem;
       font-weight: bold;
+      display: flex;
+      flex-direction: row;
+
+      span {
+        height: 38px;
+
+        &.text {
+          padding: 0 1.75rem 0 0.75rem;
+          line-height: 40px;
+        }
+
+        &.delete {
+          width: 2em;
+          line-height: 36px;
+          text-align: center;
+          color: var(--danger);
+
+          &:hover {
+            cursor: pointer;
+            color: darken(#dc3545, 20);
+          }
+        }
+      }
     }
   }
 }
