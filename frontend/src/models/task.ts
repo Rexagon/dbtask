@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Vue from 'vue';
 
 import { filter } from 'rxjs/operators';
 
@@ -70,7 +71,7 @@ export class TaskManager extends EventProducer {
     if (index < 0) {
       this.tasks.push(task);
     } else {
-      this.tasks[index] = task;
+      Vue.set(this.tasks, index, task);
     }
 
     this.notify('updated', task);
@@ -94,7 +95,7 @@ export class TaskManager extends EventProducer {
       return;
     }
 
-    this.tasks[index] = new Task(data);
+    Vue.set(this.tasks, index, new Task(data));
 
     this.notify('updated', this.tasks[index]);
   }
@@ -108,7 +109,7 @@ export class TaskManager extends EventProducer {
       return;
     }
 
-    this.tasks.splice(index, 1);
+    Vue.delete(this.tasks, index);
 
     this.notify('removed', id);
   }

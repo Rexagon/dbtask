@@ -61,6 +61,8 @@ export default class CNewTask extends Vue {
       return;
     }
 
+    this.processing = true;
+
     try {
       const task = new Task();
       task.title = this.newTitle;

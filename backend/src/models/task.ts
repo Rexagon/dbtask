@@ -58,18 +58,22 @@ export abstract class Task {
 
     const res = await db.query('INSERT INTO tasks SET ?', [data]);
 
-    const uniqueAssignedUsers = assignedUsers.filter(
-      (v, i, a) => a.indexOf(v) === i
-    );
+    let uniqueAssignedUsers: number[] = [];
 
-    await Promise.all(
-      uniqueAssignedUsers.map((userId) =>
-        db.query('INSERT INTO tasks_to_users SET taskId=?, userId=?', [
-          res.insertId,
-          userId
-        ])
-      )
-    );
+    if (assignedUsers) {
+      const uniqueAssignedUsers = assignedUsers.filter(
+        (v, i, a) => a.indexOf(v) === i
+      );
+
+      await Promise.all(
+        uniqueAssignedUsers.map((userId) =>
+          db.query('INSERT INTO tasks_to_users SET taskId=?, userId=?', [
+            res.insertId,
+            userId
+          ])
+        )
+      );
+    }
 
     return {
       id: res.insertId,
@@ -83,9 +87,9 @@ export abstract class Task {
 
     await db.query('UPDATE tasks SET ? WHERE id=?', [data, id]);
 
-    const uniqueAssignedUsers = assignedUsers.filter(
-      (v, i, a) => a.indexOf(v) === i
-    );
+    const uniqueAssignedUsers = assignedUsers
+      ? assignedUsers.filter((v, i, a) => a.indexOf(v) === i)
+      : [];
 
     const currentlyAssigned = (await db.query<{ userId: number }[]>(
       'SELECT userId FROM tasks_to_users WHERE taskId=?',

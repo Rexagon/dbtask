@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Vue from 'vue';
 
 import { EventProducer } from './event';
 
@@ -54,7 +55,7 @@ export class ColumnManager extends EventProducer {
       return;
     }
 
-    this.columns[index] = new Column(data);
+    Vue.set(this.columns, index, new Column(data));
 
     this.notify('updated', this.columns[index]);
   }
@@ -68,7 +69,7 @@ export class ColumnManager extends EventProducer {
       return;
     }
 
-    this.columns.splice(index, 1);
+    Vue.delete(this.columns, index);
 
     this.notify('removed', id);
   }

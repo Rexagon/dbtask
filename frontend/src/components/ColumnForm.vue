@@ -78,5 +78,10 @@ export default class CColumnForm extends Vue {
 
 <!-- STYLE BEGIN -->
 <style lang="scss">
+.column.editing {
+  input.form-control {
+    font-size: 1.2em;
+  }
+}
 </style>
 <!-- STYLE END -->
