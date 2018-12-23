@@ -23,6 +23,12 @@ const router = new Router({
       component: HomePage
     },
     {
+      path: '/profile',
+      name: 'profile',
+      component: () =>
+        import(/* webpackChunkName: "profile" */ './views/Profile.vue')
+    },
+    {
       path: '*',
       redirect: '/'
     }

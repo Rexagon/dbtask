@@ -3,12 +3,12 @@
   <div id="app" :class="{ 'no-sidebar': noSidebar }">
     <notifications position="bottom right"></notifications>
     <div class="sidebar" v-if="!noSidebar">
-      <a href="/" :class="{ active: checkActiveSection('home') }">
+      <router-link to="/" :class="{ active: checkActiveSection('home') }">
         <icon name="tasks" scale="2"></icon>
-      </a>
-      <a href="/users">
+      </router-link>
+      <router-link to="/profile" :class="{ active: checkActiveSection('profile') }">
         <icon name="user-edit" scale="2"></icon>
-      </a>
+      </router-link>
       <a @click="signOut">
         <icon name="sign-out-alt" scale="2"></icon>
       </a>
