@@ -37,15 +37,6 @@ import state from '@/models/state';
   }
 })
 export default class App extends Vue {
-  // Component methods //
-  //////////////////////
-
-  public async mounted() {
-    state.columnManager.fetchAll();
-    state.taskManager.fetchAll();
-    state.userManager.fetchAll();
-  }
-
   // Methods //
   ////////////
 
@@ -55,11 +46,14 @@ export default class App extends Vue {
 
   public signOut() {
     state.userManager.signOut();
-    this.$router.push({ name: 'login' });
+    this.$router.push({ name: 'signin' });
   }
 
   get noSidebar(): boolean {
-    return this.$route.name == null || ['login'].includes(this.$route.name);
+    return (
+      this.$route.name == null ||
+      ['signin', 'signup'].includes(this.$route.name)
+    );
   }
 }
 </script>

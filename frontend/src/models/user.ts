@@ -9,6 +9,13 @@ export interface ISignInData {
   password: string;
 }
 
+export interface ISignUpData {
+  login: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
+
 export interface IUserData {
   id: number;
   login: string;
@@ -54,6 +61,10 @@ export class UserManager extends EventProducer {
 
   public async signOut() {
     this.storeData();
+  }
+
+  public async signUp(data: ISignUpData) {
+    await axios.post('signup', data);
   }
 
   public async fetchAll() {

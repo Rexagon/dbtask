@@ -59,6 +59,7 @@ export default class HomePage extends Vue {
   public async mounted() {
     state.columnManager.fetchAll();
     state.taskManager.fetchAll();
+    state.userManager.fetchAll();
   }
 }
 </script>
