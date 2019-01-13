@@ -1,6 +1,6 @@
 import axios from 'axios';
 axios.defaults.headers.post['Content-Type'] = 'application/json';
-axios.defaults.baseURL = 'http://dbtask.rtuitlab.ru/api/';
+axios.defaults.baseURL = process.env.VUE_APP_API_URL;
 
 import Vue from 'vue';
 
