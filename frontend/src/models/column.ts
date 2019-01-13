@@ -1,14 +1,15 @@
 import axios from 'axios';
 import Vue from 'vue';
-import Bus from '@/bus';
+
+import { EventProducer } from './event';
 
 export interface IColumnData {
-  id: number;
+  id?: number;
   name: string;
 }
 
 export class Column implements IColumnData {
-  public id: number = 0;
+  public id?: number;
   public name: string = '';
 
   constructor(data?: IColumnData) {
@@ -21,46 +22,55 @@ export class Column implements IColumnData {
   }
 }
 
-export class ColumnManager {
+export class ColumnManager extends EventProducer {
   public columns: Column[] = [];
+
+  constructor() {
+    super();
+  }
 
   public async fetchAll() {
     const res = await axios.get<IColumnData[]>('columns');
 
     this.columns = res.data.map((data) => new Column(data));
 
-    this.notify();
+    this.notify('fetched', this.columns);
   }
 
   public async create(name: string) {
     const res = await axios.post<IColumnData>('columns', { name });
 
     const column = new Column(res.data);
-
     this.columns.push(column);
-    this.notify();
+
+    this.notify('created', column);
   }
 
   public async update(data: IColumnData) {
     await axios.put('columns', data);
 
-    const column = new Column(data);
-    Vue.set(
-      this.columns,
-      this.columns.findIndex((v) => v.id === data.id),
-      column
-    );
-    this.notify();
+    const index = this.columns.findIndex((col) => col.id === data.id);
+
+    if (index < 0) {
+      return;
+    }
+
+    Vue.set(this.columns, index, new Column(data));
+
+    this.notify('updated', this.columns[index]);
   }
 
   public async delete(id: number) {
     await axios.delete(`columns/${id}`);
-    Vue.delete(this.columns, this.columns.findIndex((v) => v.id === id));
-    Bus.fire('column-deleted', id);
-    this.notify();
-  }
 
-  public notify() {
-    Bus.fire('columns-changed', this.columns);
+    const index = this.columns.findIndex((col) => col.id === id);
+
+    if (index < 0) {
+      return;
+    }
+
+    Vue.delete(this.columns, index);
+
+    this.notify('removed', id);
   }
 }

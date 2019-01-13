@@ -5,7 +5,6 @@ import Router from 'vue-router';
 import state from '@/models/state';
 
 import HomePage from './views/Home.vue';
-import LoginPage from './views/Login.vue';
 
 Vue.use(Router);
 
@@ -13,14 +12,27 @@ const router = new Router({
   mode: 'history',
   routes: [
     {
-      path: '/login',
-      name: 'login',
-      component: LoginPage
+      path: '/signin',
+      name: 'signin',
+      component: () =>
+        import(/* webpackChunkName: "auth" */ './views/Login.vue')
+    },
+    {
+      path: '/signup',
+      name: 'signup',
+      component: () =>
+        import(/* webpackChunkName: "auth" */ './views/Registration.vue')
     },
     {
       path: '/',
       name: 'home',
       component: HomePage
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: () =>
+        import(/* webpackChunkName: "profile" */ './views/Profile.vue')
     },
     {
       path: '*',
@@ -31,7 +43,7 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   if (
-    (to.name && ['login'].includes(to.name)) ||
+    (to.name && ['signin', 'signup'].includes(to.name)) ||
     state.userManager.currentUser
   ) {
     next();
@@ -39,7 +51,7 @@ router.beforeEach((to, from, next) => {
   }
 
   next({
-    name: 'login'
+    name: 'signin'
   });
 });
 
@@ -60,7 +72,7 @@ axios.interceptors.response.use(
 
       case 401:
       case 403:
-        router.push({ name: 'login' });
+        router.push({ name: 'signin' });
         return Promise.reject();
 
       default:

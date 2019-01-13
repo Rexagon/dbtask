@@ -1,25 +1,24 @@
 <!-- TEMPLATE BEGIN -->
 <template>
-  <div id="app" :class="{'no-sidebar': noSidebar}">
+  <div id="app" :class="{ 'no-sidebar': noSidebar }">
     <notifications position="bottom right"></notifications>
     <div class="sidebar" v-if="!noSidebar">
-      <a href="/" :class="{active: checkActiveSection('home')}">
+      <router-link to="/" :class="{ active: checkActiveSection('home') }">
         <icon name="tasks" scale="2"></icon>
-      </a>
-      <a href="/users">
+      </router-link>
+      <router-link to="/profile" :class="{ active: checkActiveSection('profile') }">
         <icon name="user-edit" scale="2"></icon>
-      </a>
+      </router-link>
       <a @click="signOut">
         <icon name="sign-out-alt" scale="2"></icon>
       </a>
     </div>
     <div class="main-area">
-      <router-view />
+      <router-view/>
     </div>
   </div>
 </template>
 <!-- TEMPLATE END -->
-
 
 <!-- SCRIPT BEGIN -->
 <script lang="ts">
@@ -29,30 +28,36 @@ import Icon from 'vue-awesome/components/Icon';
 import 'vue-awesome/icons/tasks';
 import 'vue-awesome/icons/user-edit';
 import 'vue-awesome/icons/sign-out-alt';
+
 import state from '@/models/state';
 
-@Component({
+@Component<App>({
   components: {
     Icon
   }
 })
 export default class App extends Vue {
+  // Methods //
+  ////////////
+
   public checkActiveSection(name: string) {
     return this.$route.name === name;
   }
 
   public signOut() {
     state.userManager.signOut();
-    this.$router.push({ name: 'login' });
+    this.$router.push({ name: 'signin' });
   }
 
   get noSidebar(): boolean {
-    return this.$route.name == null || ['login'].includes(this.$route.name);
+    return (
+      this.$route.name == null ||
+      ['signin', 'signup'].includes(this.$route.name)
+    );
   }
 }
 </script>
 <!-- SCRIPT END -->
-
 
 <!-- STYLE BEGIN -->
 <style lang="scss">
@@ -66,26 +71,6 @@ body {
   background-color: #1e1e1e !important;
   color: #acacac !important;
   height: 100%;
-
-  .btn {
-    border-radius: 0;
-  }
-
-  .form-control {
-    border-radius: 1px;
-    box-shadow: none;
-    color: #acacac;
-    border: 1px solid #3c3c3c;
-    background-color: #3c3c3c;
-
-    &:focus {
-      color: #acacac;
-      background-color: #3c3c3c;
-      border: 1px solid #175b89;
-      outline: 0;
-      box-shadow: none;
-    }
-  }
 }
 
 #app {
@@ -143,4 +128,4 @@ body {
   }
 }
 </style>
-<!-- TEMPLATE END -->
+<!-- STYLE END -->

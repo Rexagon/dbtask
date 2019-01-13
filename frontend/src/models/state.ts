@@ -1,18 +1,24 @@
-import axios from 'axios';
-
 import { UserManager } from './user';
 import { TaskManager } from './task';
 import { ColumnManager } from './column';
+import { EventProducer } from './event';
 
-export class State {
+export interface StateEvent {
+  type: string;
+  data: any;
+}
+
+export class State extends EventProducer {
   public userManager: UserManager;
   public taskManager: TaskManager;
   public columnManager: ColumnManager;
 
   constructor() {
+    super();
+
     this.userManager = new UserManager();
-    this.taskManager = new TaskManager();
     this.columnManager = new ColumnManager();
+    this.taskManager = new TaskManager(this);
   }
 }
 

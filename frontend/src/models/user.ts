@@ -1,4 +1,6 @@
 import axios from 'axios';
+import Vue from 'vue';
+import { EventProducer } from './event';
 
 const LOCAL_STORAGE_ACCESS_TOKEN = 'access-token';
 const LOCAL_STORAGE_USER_DATA = 'user-data';
@@ -6,6 +8,13 @@ const LOCAL_STORAGE_USER_DATA = 'user-data';
 export interface ISignInData {
   login: string;
   password: string;
+}
+
+export interface ISignUpData {
+  login: string;
+  password: string;
+  firstName: string;
+  lastName: string;
 }
 
 export interface IUserData {
@@ -32,10 +41,13 @@ export class User implements IUserData {
   }
 }
 
-export class UserManager {
+export class UserManager extends EventProducer {
   public currentUser: User | null = null;
 
+  public users: User[] = [];
+
   constructor() {
+    super();
     this.restoreData();
   }
 
@@ -52,9 +64,50 @@ export class UserManager {
     this.storeData();
   }
 
+  public async signUp(data: ISignUpData) {
+    await axios.post('signup', data);
+  }
+
   public async fetchAll() {
     const res = await axios.get<IUserData[]>('users');
-    return res.data;
+
+    this.users = res.data.map((user) => new User(user));
+
+    const index = this.users.findIndex(
+      (user) => this.currentUser != null && user.id === this.currentUser.id
+    );
+
+    if (index >= 0) {
+      this.currentUser = this.users[index];
+    }
+
+    this.notify('fetched', this.users);
+  }
+
+  public async update(data: IUserData) {
+    if (this.currentUser == null) {
+      return;
+    }
+
+    await axios.put('users', data);
+
+    const index = this.users.findIndex(
+      (user) => this.currentUser != null && user.id === this.currentUser.id
+    );
+
+    if (index < 0) {
+      return;
+    }
+
+    const user = this.users[index];
+    user.firstName = data.firstName;
+    user.lastName = data.lastName;
+
+    Vue.set(this.users, index, user);
+    this.currentUser = user;
+    console.log(this.currentUser);
+
+    this.notify('updated', user);
   }
 
   private storeData(token?: string, userData?: IUserData) {

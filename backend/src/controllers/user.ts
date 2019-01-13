@@ -1,8 +1,8 @@
-import express from "express";
-import bcrypt from "bcrypt";
+import express from 'express';
+import bcrypt from 'bcrypt';
 
-import { IUser, User } from "../models/user";
-import { genErrResponse, createAccessToken } from "../stuff";
+import { IUser, User } from '../models/user';
+import { genErrResponse, createAccessToken, parseAccessToken } from '../stuff';
 
 const router = express.Router();
 
@@ -11,7 +11,7 @@ const SALT_OR_ROUNDS = 10;
 // POST /api/signup //
 /////////////////////
 
-router.post("/signup", async (req, res) => {
+router.post('/signup', async (req, res) => {
   const user = req.body as IUser;
   const validated = User.validate(user);
 
@@ -21,7 +21,7 @@ router.post("/signup", async (req, res) => {
     validated.isFirstNameInvalid ||
     validated.isLastNameInvalid
   ) {
-    res.json(genErrResponse("InvalidData"));
+    res.json(genErrResponse('InvalidData'));
     return;
   }
 
@@ -31,14 +31,14 @@ router.post("/signup", async (req, res) => {
   try {
     res.json(await User.create(user));
   } catch (err) {
-    res.json(genErrResponse("DBError", err));
+    res.json(genErrResponse('DBError', err));
   }
 });
 
 // POST /api/signin //
 /////////////////////
 
-router.post("/signin", async (req, res) => {
+router.post('/signin', async (req, res) => {
   const data: {
     login: string;
     password: string;
@@ -48,7 +48,7 @@ router.post("/signin", async (req, res) => {
     User.checkLoginInvalid(data.login) ||
     User.checkPasswordInvalid(data.password)
   ) {
-    res.json(genErrResponse("InvalidData"));
+    res.json(genErrResponse('InvalidData'));
     return;
   }
 
@@ -59,7 +59,7 @@ router.post("/signin", async (req, res) => {
     ]);
 
     if (user == null || (await bcrypt.compare(hash, user.password))) {
-      res.json(genErrResponse("InvalidData"));
+      res.json(genErrResponse('InvalidData'));
       return;
     }
 
@@ -73,42 +73,44 @@ router.post("/signin", async (req, res) => {
 
     res.json(response);
   } catch (err) {
-    res.json(genErrResponse("DBError", err));
+    res.json(genErrResponse('DBError', err));
   }
 });
 
 // GET /api/users //
 ////////////////////
 
-router.get("/users", async (req, res) => {
+router.get('/users', async (req, res) => {
   try {
     res.json(await User.getAll());
   } catch (err) {
-    res.json(genErrResponse("DBError", err));
+    res.json(genErrResponse('DBError', err));
   }
 });
 
 // PUT /api/users //
 ///////////////////
 
-router.put("/users", async (req, res) => {
+router.put('/users', async (req, res) => {
   const user = req.body as IUser;
   const validated = User.validate(user);
 
+  const token = parseAccessToken(req.headers.authorization || '');
+
   if (
-    validated.isIdInvalid ||
+    token == null ||
     validated.isFirstNameInvalid ||
     validated.isLastNameInvalid
   ) {
-    res.json(genErrResponse("InvalidData"));
+    res.json(genErrResponse('InvalidData'));
     return;
   }
 
   try {
-    await User.update(user);
+    await User.update({ ...user, id: token.userId });
     res.json({});
   } catch (err) {
-    res.json(genErrResponse("DBError", err));
+    res.json(genErrResponse('DBError', err));
   }
 });
 

@@ -1,79 +1,104 @@
 // constants //
 //////////////
-
 $sidebar-width: 64px;
 
 // Change bootstrap style //
 ///////////////////////////
-
-.modal-dialog {
-  .modal-content {
+#app {
+  .btn {
     border-radius: 0;
-    background-color: #1e1e1e;
+  }
 
-    .close {
+  .form-control {
+    border-radius: 1px;
+    box-shadow: none;
+    color: #acacac;
+    border: 1px solid #3c3c3c;
+    background-color: #3c3c3c;
+
+    &:focus {
       color: #acacac;
+      background-color: #3c3c3c;
+      border: 1px solid #175b89;
+      outline: 0;
+      box-shadow: none;
+    }
 
-      &:not(:disabled):not(.disabled):hover,
-      &:not(:disabled):not(.disabled):focus {
+    &:disabled,
+    &[readonly] {
+      background-color: #3c3c3c;
+      opacity: 1;
+    }
+  }
+
+  .modal-dialog {
+    .modal-content {
+      border-radius: 0;
+      background-color: #1e1e1e;
+      .close {
         color: #acacac;
+        &:not(:disabled):not(.disabled):hover,
+        &:not(:disabled):not(.disabled):focus {
+          color: #acacac;
+        }
+      }
+      .modal-header {
+        padding-bottom: 0;
+        border: 0;
+      }
+      .modal-footer {
+        padding-top: 0px;
+        border: 0;
       }
     }
+  }
 
-    .modal-header {
-      padding-bottom: 0;
-      border: 0;
-    }
-
-    .modal-footer {
-      padding-top: 0px;
-      border: 0;
+  .form-control select {
+    option {
+      padding: 5px;
     }
   }
 }
 
+.card {
+  border-radius: 1px;
+  border: 1px solid #3c3c3c;
+  background-color: #3c3c3c;
+}
+
 // Mixings //
 ////////////
-
 @mixin scrollbar() {
   &::-webkit-scrollbar {
     width: 10px;
     height: 10px;
   }
-
   &::-webkit-scrollbar-button {
     width: 0px;
     height: 0px;
   }
-
   &::-webkit-scrollbar-thumb {
     background: #e1e1e1;
     border: 0px none #ffffff;
     border-radius: 50px;
   }
-
   &::-webkit-scrollbar-thumb:hover {
     background: #ffffff;
   }
-
   &::-webkit-scrollbar-thumb:active {
     background: #000000;
   }
-
   &::-webkit-scrollbar-track {
     background: #666666;
     border: 0px none #ffffff;
     border-radius: 0px;
   }
-
   &::-webkit-scrollbar-track:hover {
     background: #666666;
   }
-
   &::-webkit-scrollbar-track:active {
     background: #333333;
   }
-
   &::-webkit-scrollbar-corner {
     background: transparent;
   }
@@ -84,12 +109,10 @@ $sidebar-width: 64px;
     height: 0;
     width: 0;
   }
-
   &::-webkit-scrollbar-thumb {
     height: 0;
     width: 0;
   }
-
   &::-webkit-scrollbar-track {
     height: 0;
     width: 0;

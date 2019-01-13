@@ -1,9 +1,11 @@
 <!-- TEMPLATE BEGIN -->
 <template>
   <div class="home-page">
-    <c-column v-for="column in columns" v-bind:key="column.id" :column="column" />
-    <c-column-form />
-    <c-column :column="archiveColumn" :immortal="true" />
+    <c-column v-for="column in columns" v-bind:key="column.id" :column="column"/>
+    <c-column-form/>
+    <c-column :column="archiveColumn" :immortal="true"/>
+
+    <c-task-modal ref="task-modal"/>
   </div>
 </template>
 <!-- TEMPLATE END -->
@@ -12,17 +14,21 @@
 <!-- SCRIPT BEGIN -->
 <script lang="ts">
 import { Component, Watch, Vue } from 'vue-property-decorator';
+import { filter } from 'rxjs/operators';
 
 import CColumn from '@/components/Column.vue';
+import CTaskModal from '@/components/TaskModal.vue';
 import CColumnForm from '@/components/ColumnForm.vue';
 
 import { Column } from '@/models/column';
+import { Event } from '@/models/event';
+import { Task } from '@/models/task';
 import state from '@/models/state';
-import Bus from '@/bus';
 
-@Component({
+@Component<HomePage>({
   components: {
     CColumn,
+    CTaskModal,
     CColumnForm
   }
 })
@@ -31,20 +37,29 @@ export default class HomePage extends Vue {
   ///////////////
 
   public columns: Column[] = [];
-  public archiveColumn: Column = new Column({ id: 0, name: 'Архив' });
+  public archiveColumn: Column = new Column({ name: 'Архив' });
 
   // Component methods //
   //////////////////////
 
-  public async mounted() {
+  public async created() {
     this.columns = state.columnManager.columns;
 
-    Bus.on('columns-changed', (columns: Column[]) => {
-      this.columns = columns;
+    this.$subscribeTo(state.columnManager.eventBus, (event) => {
+      this.columns = state.columnManager.columns;
     });
 
+    this.$subscribeTo(
+      state.eventBus.pipe(filter((event) => event.type === 'show-task-modal')),
+      (event: Event<Task>) =>
+        (this.$refs['task-modal'] as Vue).$emit('show', event.data)
+    );
+  }
+
+  public async mounted() {
     state.columnManager.fetchAll();
     state.taskManager.fetchAll();
+    state.userManager.fetchAll();
   }
 }
 </script>

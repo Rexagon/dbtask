@@ -1,4 +1,4 @@
-import mysql, { Pool } from "mysql";
+import mysql, { Pool } from 'mysql';
 
 export interface InsertionDBResponse {
   insertId: number;
@@ -21,14 +21,14 @@ class Database {
       user: config.user,
       password: config.password,
       multipleStatements: true,
-      timezone: "+03:00"
+      timezone: '+03:00'
     });
   }
 
   public close() {
     if (!this.pool) return;
 
-    this.pool.end(err => {
+    this.pool.end((err) => {
       console.log(err);
     });
   }
@@ -39,7 +39,7 @@ class Database {
   ): Promise<T> {
     return new Promise((resolve, reject) => {
       if (!this.pool) {
-        reject(new Error("pool is undefined"));
+        reject(new Error('pool is undefined'));
         return;
       }
 
@@ -60,7 +60,7 @@ class Database {
 
   public escape<T>(object: T): string {
     if (!this.pool) {
-      throw new Error("pool is undefined");
+      throw new Error('pool is undefined');
     }
 
     return this.pool.escape(object);
@@ -70,7 +70,3 @@ class Database {
 const db = new Database();
 
 export default db;
-
-export function escape<T>(value: T): string {
-  return db.escape(value);
-}

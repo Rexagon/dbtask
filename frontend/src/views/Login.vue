@@ -1,6 +1,6 @@
 <!-- TEMPLATE BEGIN -->
 <template>
-  <div class="login-page">
+  <div class="auth-page">
     <b-form>
       <b-form-group>
         <b-form-input type="text" v-model.trim="data.login"></b-form-input>
@@ -11,6 +11,11 @@
       <b-form-group>
         <b-button style="width: 100%" @click="signin">Войти</b-button>
       </b-form-group>
+      <b-form-row>
+        <b-col align="center">
+          <router-link to="signup">У меня нет аккаунта</router-link>
+        </b-col>
+      </b-form-row>
     </b-form>
   </div>
 </template>
@@ -23,7 +28,7 @@ import { Component, Vue } from 'vue-property-decorator';
 import { ISignInData } from '@/models/user';
 import state from '@/models/state';
 
-@Component
+@Component<LoginPage>({})
 export default class LoginPage extends Vue {
   public data: ISignInData = { login: '', password: '' };
 
@@ -33,7 +38,7 @@ export default class LoginPage extends Vue {
 
       this.$router.push('/');
     } catch (err) {
-      console.log('Wrong');
+      console.log('Wrong', err);
     }
   }
 }
@@ -43,7 +48,9 @@ export default class LoginPage extends Vue {
 
 <!-- STYLE BEGIN -->
 <style lang="scss">
-.login-page {
+@import '@/styles/general.scss';
+
+.auth-page {
   width: 100%;
   height: 100%;
   display: flex;
@@ -52,6 +59,15 @@ export default class LoginPage extends Vue {
 
   form {
     width: 300px;
+
+    a {
+      color: #6c757d;
+      text-decoration: underline;
+
+      &:hover {
+        color: lighten(#6c757d, 10);
+      }
+    }
   }
 }
 </style>

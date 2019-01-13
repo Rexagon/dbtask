@@ -1,6 +1,6 @@
 import axios from 'axios';
 axios.defaults.headers.post['Content-Type'] = 'application/json';
-axios.defaults.baseURL = 'http://localhost:17400/api/';
+axios.defaults.baseURL = process.env.VUE_APP_API_URL;
 
 import Vue from 'vue';
 
@@ -17,6 +17,9 @@ Vue.use(VueNotifications);
 
 import VueAutosize from 'vue-autosize';
 Vue.use(VueAutosize);
+
+import VueRx from 'vue-rx';
+Vue.use(VueRx);
 
 Vue.config.productionTip = false;
 
